@@ -1,6 +1,6 @@
 import { requireAuth } from '../../lib/auth.js'
 import { supabase } from '../../lib/supabase.js'
-import { computeRemaining, formatTime, startCountdown } from '../../lib/timer.js'
+import { computeRemaining, formatTime, renderTimerElement, startCountdown } from '../../lib/timer.js'
 import { soundHorn, beep } from '../../lib/audio.js'
 import { toast } from '../../lib/toast.js'
 
@@ -148,7 +148,7 @@ function startTimerLoop() {
     () => match,
     (rem, isSecondBoundary) => {
       if (timerEl && isSecondBoundary) {
-        timerEl.textContent = formatTime(rem)
+        renderTimerElement(timerEl, rem)
       }
       const isUrgent = rem <= 10000 && rem > 0
       if (timerEl && isUrgent !== lastUrgent) {
@@ -157,6 +157,7 @@ function startTimerLoop() {
       }
     },
     () => {
+      if (timerEl) renderTimerElement(timerEl, 0)
       if (!timerExpiredFired) {
         timerExpiredFired = true
         soundHorn()
@@ -197,12 +198,26 @@ function renderMatch() {
   const redNameEl = document.getElementById('red-name')
   if (redNameEl) redNameEl.textContent = match.red_name
   const redCountryEl = document.getElementById('red-country')
-  if (redCountryEl) redCountryEl.textContent = match.red_country ? `(${match.red_country})` : ''
+  if (redCountryEl) {
+    if (match.red_country) {
+      redCountryEl.textContent = match.red_country.toUpperCase()
+      redCountryEl.style.display = 'inline-flex'
+    } else {
+      redCountryEl.style.display = 'none'
+    }
+  }
 
   const blueNameEl = document.getElementById('blue-name')
   if (blueNameEl) blueNameEl.textContent = match.blue_name
   const blueCountryEl = document.getElementById('blue-country')
-  if (blueCountryEl) blueCountryEl.textContent = match.blue_country ? `(${match.blue_country})` : ''
+  if (blueCountryEl) {
+    if (match.blue_country) {
+      blueCountryEl.textContent = match.blue_country.toUpperCase()
+      blueCountryEl.style.display = 'inline-flex'
+    } else {
+      blueCountryEl.style.display = 'none'
+    }
+  }
 
   // Gam-jeom
   renderGjDots('red',  match.red_gam_jeom  ?? 0, 5)
@@ -260,8 +275,21 @@ function renderGjDots(corner, count, max) {
 function renderScores() {
   if (!match) return
   const curRound = match.current_round ?? 1
-  document.getElementById('red-score').textContent  = roundScore('red', curRound)
-  document.getElementById('blue-score').textContent = roundScore('blue', curRound)
+  const redEl = document.getElementById('red-score')
+  const blueEl = document.getElementById('blue-score')
+  const rPts = String(roundScore('red', curRound))
+  const bPts = String(roundScore('blue', curRound))
+
+  if (redEl && redEl.textContent !== rPts) {
+    redEl.textContent = rPts
+    redEl.style.transform = 'scale(1.08)'
+    setTimeout(() => { if (redEl) redEl.style.transform = 'scale(1)' }, 120)
+  }
+  if (blueEl && blueEl.textContent !== bPts) {
+    blueEl.textContent = bPts
+    blueEl.style.transform = 'scale(1.08)'
+    setTimeout(() => { if (blueEl) blueEl.style.transform = 'scale(1)' }, 120)
+  }
 }
 
 function renderRoundHistory() {

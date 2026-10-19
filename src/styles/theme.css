@@ -171,10 +171,77 @@ body {
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5ch;
+  text-align: center;
+  contain: layout style;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .score-num--red  { color: #FF4D6A; text-shadow: 0 0 40px var(--red-glow); }
 .score-num--blue { color: #5B9CF6; text-shadow: 0 0 40px var(--blue-glow); }
+
+/* ── Fixed-Layout Tabular Timer & Score Slots ──────────────────────────────── */
+.timer-digits {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1;
+  font-kerning: none;
+  line-height: 1;
+  user-select: none;
+  contain: layout style;
+  white-space: nowrap;
+}
+
+.timer-digit {
+  display: inline-block;
+  width: 0.60em;
+  min-width: 0.60em;
+  max-width: 0.60em;
+  text-align: center;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
+
+.timer-colon {
+  display: inline-block;
+  width: 0.28em;
+  min-width: 0.28em;
+  max-width: 0.28em;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  top: -0.04em;
+  opacity: 0.9;
+}
+
+.score-digits {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  line-height: 1;
+  user-select: none;
+  contain: layout style;
+  white-space: nowrap;
+}
+
+.score-digit {
+  display: inline-block;
+  width: 0.62em;
+  min-width: 0.62em;
+  max-width: 0.62em;
+  text-align: center;
+  box-sizing: border-box;
+  contain: layout style paint;
+}
 
 /* ── Timer ─────────────────────────────────────────────────────────────────── */
 .timer-display {
@@ -182,9 +249,13 @@ body {
   font-size: clamp(2.5rem, 6vw, 5rem);
   color: var(--amber);
   text-shadow: 0 0 30px var(--amber-glow), 0 0 60px rgba(245,197,24,0.15);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   font-weight: 700;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  contain: layout style;
 }
 
 .timer-display--urgent {
@@ -196,6 +267,22 @@ body {
 @keyframes urgentPulse {
   from { opacity: 1; }
   to   { opacity: 0.65; }
+}
+
+/* ── Country Pills ─────────────────────────────────────────────────────────── */
+.country-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--text);
+  text-transform: uppercase;
 }
 
 /* ── Corner Accent Strips ───────────────────────────────────────────────────── */

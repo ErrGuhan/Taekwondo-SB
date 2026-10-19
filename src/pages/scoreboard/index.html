@@ -40,6 +40,7 @@
       min-width: 0;
       box-sizing: border-box;
       position: relative;
+      contain: layout style;
     }
 
     .sb-corner--red {
@@ -55,10 +56,13 @@
     /* Top Corner Header */
     .sb-corner-top {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 14px;
-      flex-wrap: wrap;
       min-width: 0;
+      white-space: nowrap;
+    }
+    .sb-corner--red .sb-corner-top {
+      justify-content: flex-start;
     }
     .sb-corner--blue .sb-corner-top {
       justify-content: flex-end;
@@ -70,16 +74,28 @@
       font-size: clamp(24px, 2.8vw, 42px);
       letter-spacing: 0.01em;
       min-width: 0;
-      overflow-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
       line-height: 1.1;
     }
 
-    .sb-country {
-      font-weight: 700;
-      font-size: clamp(14px, 1.2vw, 18px);
-      letter-spacing: 0.08em;
-      color: #9AA3B8;
-      white-space: nowrap;
+    .sb-country-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: clamp(13px, 1.2vw, 17px);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      text-transform: uppercase;
+      min-width: 44px;
+      box-sizing: border-box;
+      flex-shrink: 0;
     }
 
     /* Center Score Container */
@@ -102,7 +118,13 @@
       font-size: clamp(84px, 12vw, 172px);
       text-shadow: 0 0 45px rgba(255,255,255,0.18);
       user-select: none;
-      transition: transform 150ms ease;
+      transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: center center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      contain: layout style;
+      white-space: nowrap;
     }
 
     .sb-corner--red .sb-score {
@@ -198,16 +220,28 @@
     /* Bottom Gam-Jeom Row */
     .sb-corner-bottom {
       display: flex;
-      align-items: baseline;
-      gap: 12px;
+      align-items: center;
+    }
+    .sb-corner--red .sb-corner-bottom {
+      justify-content: flex-start;
     }
     .sb-corner--blue .sb-corner-bottom {
       justify-content: flex-end;
     }
 
+    .sb-gj-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+
     .sb-gj-label {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.12em;
       color: #9AA3B8;
       text-transform: uppercase;
@@ -215,26 +249,31 @@
 
     .sb-gj-num {
       font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(22px, 2.2vw, 32px);
+      font-weight: 800;
+      font-size: clamp(20px, 2vw, 28px);
+      min-width: 1.2ch;
+      text-align: center;
       color: #F5F6F8;
     }
 
-    /* ── Center Column ───────────────────────────────────────────────────── */
+    /* ── Center Column (Fixed Locked Width) ────────────────────────────── */
     .sb-center {
-      flex: 0 1 clamp(260px, 23vw, 340px);
+      flex: 0 0 clamp(280px, 22vw, 340px);
+      width: clamp(280px, 22vw, 340px);
+      min-width: clamp(280px, 22vw, 340px);
+      max-width: clamp(280px, 22vw, 340px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
       padding: clamp(24px, 3vh, 44px) clamp(16px, 1.8vw, 24px);
-      min-width: 0;
       box-sizing: border-box;
       text-align: center;
       border-left: 1px solid rgba(255,255,255,0.08);
       border-right: 1px solid rgba(255,255,255,0.08);
       background: rgba(11, 13, 18, 0.85);
       backdrop-filter: blur(8px);
+      contain: layout style;
     }
 
     .sb-label {
@@ -269,7 +308,12 @@
       line-height: 1;
       font-size: clamp(54px, 6.5vw, 96px);
       text-shadow: 0 0 28px rgba(245,197,24,0.45);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      contain: layout style;
+      white-space: nowrap;
     }
 
     .sb-timer--urgent {
@@ -369,12 +413,12 @@
   <!-- 🔴 RED CORNER (Hong) -->
   <div class="sb-corner sb-corner--red">
     <div class="sb-corner-top">
+      <span class="sb-country-badge" id="sb-red-country" style="display:none;"></span>
       <span class="sb-name" id="sb-red-name">Red Corner</span>
-      <span class="sb-country" id="sb-red-country">KOR</span>
     </div>
 
     <div class="sb-corner-body">
-      <div class="sb-score" id="sb-red-score">00</div>
+      <div class="sb-score score-digits" id="sb-red-score">00</div>
 
       <div class="sb-round-chips" id="sb-red-rounds">
         <span class="sb-chip" id="sb-red-r1">R1</span>
@@ -393,8 +437,10 @@
     </div>
 
     <div class="sb-corner-bottom">
-      <span class="sb-gj-label">GAM-JEOM</span>
-      <span class="sb-gj-num" id="sb-red-gj-count">0</span>
+      <div class="sb-gj-box">
+        <span class="sb-gj-label">GAM-JEOM</span>
+        <span class="sb-gj-num" id="sb-red-gj-count">0</span>
+      </div>
     </div>
   </div>
 
@@ -406,7 +452,7 @@
     </div>
 
     <div class="sb-timer-block">
-      <div class="sb-timer" id="sb-timer">02:00</div>
+      <div class="sb-timer timer-digits" id="sb-timer">02:00</div>
       <div class="sb-status-pill" id="sb-status-pill">
         <span class="sb-status-dot" id="sb-status-dot"></span>
         <span id="sb-status-text">LIVE</span>
@@ -428,12 +474,12 @@
   <!-- 🔵 BLUE CORNER (Chung) -->
   <div class="sb-corner sb-corner--blue">
     <div class="sb-corner-top">
-      <span class="sb-country" id="sb-blue-country">THA</span>
       <span class="sb-name" id="sb-blue-name">Blue Corner</span>
+      <span class="sb-country-badge" id="sb-blue-country" style="display:none;"></span>
     </div>
 
     <div class="sb-corner-body">
-      <div class="sb-score" id="sb-blue-score">00</div>
+      <div class="sb-score score-digits" id="sb-blue-score">00</div>
 
       <div class="sb-round-chips" id="sb-blue-rounds">
         <span class="sb-chip" id="sb-blue-r1">R1</span>
@@ -452,15 +498,17 @@
     </div>
 
     <div class="sb-corner-bottom">
-      <span class="sb-gj-num" id="sb-blue-gj-count">0</span>
-      <span class="sb-gj-label">GAM-JEOM</span>
+      <div class="sb-gj-box">
+        <span class="sb-gj-label">GAM-JEOM</span>
+        <span class="sb-gj-num" id="sb-blue-gj-count">0</span>
+      </div>
     </div>
   </div>
 
 </div>
 
-<!-- Floating Fullscreen Button -->
-<button id="fullscreen-btn" title="Toggle Fullscreen (F)" style="position:fixed; bottom:16px; right:16px; z-index:90; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#F5F6F8; border-radius:8px; padding:8px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; backdrop-filter:blur(10px); display:flex; align-items:center; gap:6px; opacity:0.6; transition:opacity 0.2s;">
+<!-- Floating Fullscreen Button (Top Right) -->
+<button id="fullscreen-btn" title="Toggle Fullscreen (F)" style="position:fixed; top:16px; right:16px; z-index:100; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#F5F6F8; border-radius:8px; padding:6px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; backdrop-filter:blur(10px); display:flex; align-items:center; gap:6px; opacity:0.5; transition:opacity 0.2s, background 0.2s;">
   <span>⛶</span> Fullscreen
 </button>
 

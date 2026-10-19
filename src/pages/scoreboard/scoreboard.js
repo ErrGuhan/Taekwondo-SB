@@ -1,6 +1,6 @@
 // Scoreboard — public venue display, no auth required
 import { supabase } from '../../lib/supabase.js'
-import { computeRemaining, formatTime, startCountdown } from '../../lib/timer.js'
+import { computeRemaining, formatTime, renderTimerElement, renderScoreElement, startCountdown } from '../../lib/timer.js'
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let match        = null
@@ -136,7 +136,7 @@ function startTimerLoop() {
     () => match,
     (rem, isSecondBoundary) => {
       if (timerEl && isSecondBoundary) {
-        timerEl.textContent = formatTime(rem)
+        renderTimerElement(timerEl, rem)
       }
       const isUrgent = rem <= 10000 && rem > 0
       if (timerEl && isUrgent !== lastUrgent) {
@@ -145,7 +145,7 @@ function startTimerLoop() {
       }
     },
     () => {
-      if (timerEl) timerEl.textContent = '00:00'
+      if (timerEl) renderTimerElement(timerEl, 0)
     }
   )
 }
@@ -166,13 +166,27 @@ function renderMetadata() {
   if (redName) redName.textContent = match.red_name || 'Hong'
 
   const redCountry = document.getElementById('sb-red-country')
-  if (redCountry) redCountry.textContent = match.red_country ? match.red_country : ''
+  if (redCountry) {
+    if (match.red_country) {
+      redCountry.textContent = match.red_country.toUpperCase()
+      redCountry.style.display = 'inline-flex'
+    } else {
+      redCountry.style.display = 'none'
+    }
+  }
 
   const blueName = document.getElementById('sb-blue-name')
   if (blueName) blueName.textContent = match.blue_name || 'Chung'
 
   const blueCountry = document.getElementById('sb-blue-country')
-  if (blueCountry) blueCountry.textContent = match.blue_country ? match.blue_country : ''
+  if (blueCountry) {
+    if (match.blue_country) {
+      blueCountry.textContent = match.blue_country.toUpperCase()
+      blueCountry.style.display = 'inline-flex'
+    } else {
+      blueCountry.style.display = 'none'
+    }
+  }
 
   const matchCode = document.getElementById('sb-match-code')
   if (matchCode) matchCode.textContent = match.match_code || 'MATCH'
@@ -198,17 +212,17 @@ function renderScores() {
 
   if (!redEl || !blueEl) return
 
-  const prevRed  = redEl.textContent
-  const prevBlue = blueEl.textContent
+  const prevRed  = redEl.dataset.pts
+  const prevBlue = blueEl.dataset.pts
 
-  const newRed  = String(redPts).padStart(2, '0')
-  const newBlue = String(bluePts).padStart(2, '0')
+  renderScoreElement(redEl, redPts)
+  renderScoreElement(blueEl, bluePts)
 
-  redEl.textContent  = newRed
-  blueEl.textContent = newBlue
+  redEl.dataset.pts  = String(redPts)
+  blueEl.dataset.pts = String(bluePts)
 
-  if (prevRed !== newRed)  animateScore(redEl)
-  if (prevBlue !== newBlue) animateScore(blueEl)
+  if (prevRed !== undefined && prevRed !== String(redPts)) animateScore(redEl)
+  if (prevBlue !== undefined && prevBlue !== String(bluePts)) animateScore(blueEl)
 }
 
 function getRoundPoints(corner, roundNum) {

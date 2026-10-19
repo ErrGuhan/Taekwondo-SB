@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Match Setup — Taekwondo Scoring</title>
+  <meta name="description" content="Create a new Taekwondo match and get scoring links." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="../../styles/reset.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <style>
+    .setup-layout {
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .setup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-6);
+    }
+    .header-left {
+      display: flex; align-items: center; gap: var(--sp-3);
+    }
+    .header-logo {
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--amber), var(--amber-dark));
+      border-radius: 10px;
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .header-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Two-column corner grid */
+    .corners-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--sp-4);
+      align-items: start;
+    }
+    .vs-badge {
+      background: var(--glass-fill);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 28px; /* align with form inputs */
+    }
+
+    .corner-card {
+      padding: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    .corner-card--red  { border-top: 3px solid var(--red); }
+    .corner-card--blue { border-top: 3px solid var(--blue); }
+
+    .corner-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .corner-title--red  { color: #FF4D6A; }
+    .corner-title--blue { color: #5B9CF6; }
+
+    /* Match info */
+    .match-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--sp-4);
+    }
+
+    /* Links result card */
+    .links-card {
+      padding: var(--sp-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    .links-success-icon {
+      width: 48px; height: 48px;
+      background: rgba(74,222,128,0.12);
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .link-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: var(--sp-1);
+    }
+    .link-label--red  { color: #FF4D6A; }
+    .link-label--blue { color: #60A5FA; }
+
+    .links-actions {
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 600px) {
+      .corners-grid { grid-template-columns: 1fr; }
+      .vs-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="setup-layout">
+
+      <!-- Header -->
+      <header class="setup-header">
+        <div class="header-left">
+          <div class="header-logo">🥋</div>
+          <div>
+            <div class="header-title">Taekwondo Scoring</div>
+            <div class="header-sub">Match Setup</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <span id="user-email" class="text-sm muted"></span>
+          <button class="clay clay--ghost clay--sm" id="sign-out-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <!-- Match creation form -->
+      <div id="form-section">
+        <form id="setup-form" novalidate>
+          <!-- Match Info -->
+          <div class="glass" style="padding: var(--sp-5); margin-bottom: var(--sp-4);">
+            <h2 class="text-sm uppercase font-bold muted" style="margin-bottom: var(--sp-4);">Match Details</h2>
+            <div class="match-info-grid">
+              <div class="field">
+                <label for="match-code">Match Code</label>
+                <input id="match-code" type="text" placeholder="M-201" />
+              </div>
+              <div class="field">
+                <label for="division">Division</label>
+                <select id="division">
+                  <option value="">— Select —</option>
+                  <option>Kyorugi</option>
+                  <option>Poomsae</option>
+                  <option>Para</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender">
+                  <option value="">— Select —</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Mixed</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="weight-class">Weight Class</label>
+                <input id="weight-class" type="text" placeholder="e.g. -68kg" />
+              </div>
+              <div class="field">
+                <label for="total-rounds">Rounds</label>
+                <select id="total-rounds">
+                  <option value="2">2 rounds</option>
+                  <option value="3" selected>3 rounds</option>
+                  <option value="4">4 rounds</option>
+                  <option value="5">5 rounds</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="round-seconds">Round Duration</label>
+                <select id="round-seconds">
+                  <option value="60">1:00</option>
+                  <option value="90">1:30</option>
+                  <option value="120" selected>2:00</option>
+                  <option value="180">3:00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Corners -->
+          <div class="corners-grid" style="margin-bottom: var(--sp-4);">
+            <!-- Red -->
+            <div class="glass corner-card corner-card--red">
+              <div class="corner-title corner-title--red">🔴 Hong (Red Corner)</div>
+              <div class="field">
+                <label for="red-name">Athlete Name *</label>
+                <input id="red-name" type="text" placeholder="Full name" required />
+              </div>
+              <div class="field">
+                <label for="red-country">Country Code</label>
+                <input id="red-country" type="text" placeholder="KOR" maxlength="3"
+                       style="text-transform:uppercase; letter-spacing:0.1em;" />
+              </div>
+            </div>
+
+            <!-- VS -->
+            <div class="vs-badge">VS</div>
+
+            <!-- Blue -->
+            <div class="glass corner-card corner-card--blue">
+              <div class="corner-title corner-title--blue">🔵 Chung (Blue Corner)</div>
+              <div class="field">
+                <label for="blue-name">Athlete Name *</label>
+                <input id="blue-name" type="text" placeholder="Full name" required />
+              </div>
+              <div class="field">
+                <label for="blue-country">Country Code</label>
+                <input id="blue-country" type="text" placeholder="KOR" maxlength="3"
+                       style="text-transform:uppercase; letter-spacing:0.1em;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div id="form-error" class="error-msg" style="margin-bottom: var(--sp-3);"></div>
+          <button type="submit" class="clay clay--amber clay--xl clay--block" id="init-btn">
+            ⚡ Initialize Match
+          </button>
+        </form>
+      </div>
+
+      <!-- Match created — show links -->
+      <div id="links-section" style="display:none;">
+        <div class="glass links-card">
+          <div style="display:flex; align-items:center; gap: var(--sp-3);">
+            <div class="links-success-icon">✓</div>
+            <div>
+              <div class="text-lg font-bold">Match Created!</div>
+              <div class="text-sm muted" id="match-meta"></div>
+            </div>
+          </div>
+
+          <hr class="divider" style="margin: var(--sp-2) 0;" />
+
+          <div>
+            <div class="link-label link-label--red">🎮 Control Panel (Operator only)</div>
+            <div class="copy-row">
+              <input id="control-link" type="text" readonly />
+              <button class="clay clay--ghost clay--sm" id="copy-control">Copy</button>
+              <a id="open-control" href="#" target="_blank" class="clay clay--red clay--sm">Open →</a>
+            </div>
+          </div>
+
+          <div>
+            <div class="link-label link-label--blue">📺 Scoreboard (Public / TV)</div>
+            <div class="copy-row">
+              <input id="scoreboard-link" type="text" readonly />
+              <button class="clay clay--ghost clay--sm" id="copy-scoreboard">Copy</button>
+              <a id="open-scoreboard" href="#" target="_blank" class="clay clay--blue clay--sm">Open →</a>
+            </div>
+          </div>
+
+          <hr class="divider" style="margin: var(--sp-2) 0;" />
+
+          <div class="links-actions">
+            <button class="clay clay--amber" id="new-match-btn">+ New Match</button>
+          </div>
+        </div>
+
+        <!-- Previous matches -->
+        <div id="matches-list" style="margin-top: var(--sp-5);"></div>
+      </div>
+
+    </div><!-- /layout -->
+  </div><!-- /page -->
+
+  <script type="module" src="./setup.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/setup", "destination": "/pages/setup/index.html" },
+    { "source": "/control", "destination": "/pages/control/index.html" },
+    { "source": "/scoreboard", "destination": "/pages/scoreboard/index.html" }
+  ]
+}

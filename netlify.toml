@@ -1,0 +1,18 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/setup"
+  to = "/pages/setup/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/control"
+  to = "/pages/control/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/scoreboard"
+  to = "/pages/scoreboard/index.html"
+  status = 200

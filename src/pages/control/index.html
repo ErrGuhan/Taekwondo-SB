@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Panel — Taekwondo Scoring</title>
+  <meta name="description" content="Operator scoring control panel for a live Taekwondo match." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="../../styles/reset.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <style>
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    body { overflow-x: hidden; }
+
+    .control-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: var(--sp-4);
+      gap: var(--sp-4);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── Top bar ───────────────────────────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--sp-3) var(--sp-4);
+    }
+    .top-left { display: flex; align-items: center; gap: var(--sp-3); }
+    .match-title { font-weight: 800; font-size: 1rem; }
+    .match-sub   { font-size: 0.75rem; color: var(--text-muted); }
+    .top-right { display: flex; align-items: center; gap: var(--sp-3); }
+
+    /* ── Score area ────────────────────────────────────────────────────────── */
+    .score-area {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--sp-4);
+      align-items: stretch;
+    }
+
+    .corner-panel {
+      padding: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+      position: relative;
+      overflow: hidden;
+    }
+    .corner-panel--red  { border-top: 4px solid var(--red); }
+    .corner-panel--blue { border-top: 4px solid var(--blue); }
+
+    .corner-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      pointer-events: none;
+    }
+    .corner-panel--red::before  { background: var(--red); }
+    .corner-panel--blue::before { background: var(--blue); }
+
+    .athlete-name {
+      font-weight: 800;
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
+    .athlete-country {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    .score-display {
+      text-align: center;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gj-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    /* Score buttons */
+    .score-btns {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--sp-2);
+    }
+    .score-btn {
+      padding: 10px 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: var(--r-sm);
+      text-align: center;
+    }
+
+    .gj-btn {
+      width: 100%;
+      margin-top: var(--sp-1);
+      font-size: 0.8rem;
+    }
+
+    /* ── Center column (timer) ─────────────────────────────────────────────── */
+    .center-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-4);
+      min-width: 200px;
+    }
+
+    .timer-card {
+      padding: var(--sp-5) var(--sp-6);
+      text-align: center;
+      width: 100%;
+    }
+
+    .round-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+    }
+
+    .timer-controls {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      width: 100%;
+    }
+
+    .timer-controls-row {
+      display: flex;
+      gap: var(--sp-2);
+    }
+    .timer-controls-row .clay { flex: 1; font-size: 0.85rem; padding: 10px 8px; }
+
+    /* Round wins dots */
+    .round-wins {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .round-win-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid;
+      transition: background 200ms;
+    }
+    .round-win-dot--red  { border-color: var(--red); }
+    .round-win-dot--red.won  { background: var(--red); box-shadow: 0 0 8px var(--red-glow); }
+    .round-win-dot--blue { border-color: var(--blue); }
+    .round-win-dot--blue.won { background: var(--blue); box-shadow: 0 0 8px var(--blue-glow); }
+
+    /* ── Bottom bar ────────────────────────────────────────────────────────── */
+    .bottom-bar {
+      display: flex;
+      justify-content: center;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      padding: var(--sp-3);
+    }
+
+    /* ── Finished overlay ──────────────────────────────────────────────────── */
+    .finished-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11,13,18,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      display: none;
+    }
+    .finished-card {
+      padding: var(--sp-7);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    @media (max-width: 700px) {
+      .score-area {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      .center-col { min-width: unset; }
+      .score-btns { grid-template-columns: repeat(5, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- Finished overlay -->
+<div class="finished-overlay" id="finished-overlay">
+  <div class="glass finished-card">
+    <div style="font-size:3rem; margin-bottom: var(--sp-4);">🏆</div>
+    <h2 class="text-2xl font-black" style="margin-bottom: var(--sp-2);">Match Over</h2>
+    <p id="winner-text" class="text-lg muted" style="margin-bottom: var(--sp-5);"></p>
+    <div style="display:flex; gap: var(--sp-3); justify-content:center; flex-wrap:wrap;">
+      <button class="clay clay--ghost" id="reset-from-finished">Reset Match</button>
+      <a href="/pages/setup/" class="clay clay--amber">New Match</a>
+    </div>
+  </div>
+</div>
+
+<div class="control-page">
+
+  <!-- Top bar -->
+  <div class="glass top-bar">
+    <div class="top-left">
+      <div style="font-size:1.3rem;">🥋</div>
+      <div>
+        <div class="match-title" id="match-title">Loading…</div>
+        <div class="match-sub" id="match-sub"></div>
+      </div>
+    </div>
+    <div class="top-right">
+      <span id="status-chip" class="status-chip status-chip--setup">Setup</span>
+      <button class="clay clay--ghost clay--sm" id="shortcuts-btn" type="button">⌨️ Shortcuts</button>
+      <a href="/pages/setup/" class="clay clay--ghost clay--sm">← Matches</a>
+    </div>
+  </div>
+
+  <!-- Score area -->
+  <div class="score-area">
+
+    <!-- RED CORNER -->
+    <div class="glass corner-panel corner-panel--red">
+      <div>
+        <div class="corner-title corner-title--red text-xs uppercase font-bold" style="margin-bottom:4px;">🔴 Hong · Red</div>
+        <div class="athlete-name" id="red-name">—</div>
+        <div class="athlete-country" id="red-country"></div>
+      </div>
+
+      <div class="score-display">
+        <div class="score-num score-num--red" id="red-score">0</div>
+      </div>
+
+      <div class="gj-row" style="justify-content: space-between;">
+        <div style="display:flex; align-items:center; gap: var(--sp-2);">
+          <span>Gam-jeom:</span>
+          <div class="gj-dots" id="red-gj-dots"></div>
+          <span id="red-gj-count" style="font-weight:700;">0</span>
+        </div>
+        <button class="clay clay--ghost clay--xs" id="red-gj-minus-btn" title="Undo 1 Gam-jeom" style="padding: 2px 8px; font-size: 0.72rem;">-1</button>
+      </div>
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-2);">
+          <span class="text-xs muted uppercase font-bold">Award Points</span>
+          <button class="link text-xs" id="red-undo-btn" type="button" style="color:var(--text-muted); font-size:0.75rem;">Undo</button>
+        </div>
+        <div class="score-btns" id="red-score-btns">
+          <button class="clay clay--red score-btn" data-corner="red" data-pts="1">+1</button>
+          <button class="clay clay--red score-btn" data-corner="red" data-pts="2">+2</button>
+          <button class="clay clay--red score-btn" data-corner="red" data-pts="3">+3</button>
+          <button class="clay clay--red score-btn" data-corner="red" data-pts="4">+4</button>
+          <button class="clay clay--red score-btn" data-corner="red" data-pts="5">+5</button>
+        </div>
+        <div style="display:flex; gap: var(--sp-2); margin-top: var(--sp-2);">
+          <button class="clay clay--ghost score-btn" data-corner="red" data-pts="-1" style="flex:1; font-size:0.78rem;">-1 Pt</button>
+          <button class="clay clay--ghost gj-btn" id="red-gj-btn" style="flex:2; margin-top:0; font-size:0.78rem;">⚠ +1 Gam-jeom</button>
+          <button class="clay clay--ghost" id="red-vr-btn" style="flex:1.2; font-size:0.75rem;">VR: <span id="red-vr-val">1</span></button>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-xs muted uppercase font-bold" style="margin-bottom: var(--sp-2);">Round History</div>
+        <div id="red-rounds" style="display:flex; gap: var(--sp-1); flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <!-- CENTER: Timer -->
+    <div class="center-col">
+      <div class="glass timer-card">
+        <div class="round-badge" id="round-badge">Round 1 / 3</div>
+        <div class="timer-display" id="timer">02:00</div>
+      </div>
+
+      <div style="display:flex; gap: var(--sp-4);">
+        <div style="text-align:center;">
+          <div class="text-xs muted uppercase" style="margin-bottom:4px;">Red Wins</div>
+          <div class="round-wins" id="red-wins-dots"></div>
+        </div>
+        <div style="text-align:center;">
+          <div class="text-xs muted uppercase" style="margin-bottom:4px;">Blue Wins</div>
+          <div class="round-wins" id="blue-wins-dots"></div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <div class="timer-controls-row">
+          <button class="clay clay--amber" id="start-btn">▶ Start</button>
+          <button class="clay clay--ghost" id="pause-btn" disabled>⏸ Pause</button>
+        </div>
+        <button class="clay clay--ghost" id="horn-btn" style="font-size:0.85rem;">🔔 Sound Horn</button>
+      </div>
+    </div>
+
+    <!-- BLUE CORNER -->
+    <div class="glass corner-panel corner-panel--blue">
+      <div>
+        <div class="corner-title corner-title--blue text-xs uppercase font-bold" style="margin-bottom:4px;">🔵 Chung · Blue</div>
+        <div class="athlete-name" id="blue-name">—</div>
+        <div class="athlete-country" id="blue-country"></div>
+      </div>
+
+      <div class="score-display">
+        <div class="score-num score-num--blue" id="blue-score">0</div>
+      </div>
+
+      <div class="gj-row" style="justify-content: space-between;">
+        <div style="display:flex; align-items:center; gap: var(--sp-2);">
+          <span>Gam-jeom:</span>
+          <div class="gj-dots" id="blue-gj-dots"></div>
+          <span id="blue-gj-count" style="font-weight:700;">0</span>
+        </div>
+        <button class="clay clay--ghost clay--xs" id="blue-gj-minus-btn" title="Undo 1 Gam-jeom" style="padding: 2px 8px; font-size: 0.72rem;">-1</button>
+      </div>
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-2);">
+          <span class="text-xs muted uppercase font-bold">Award Points</span>
+          <button class="link text-xs" id="blue-undo-btn" type="button" style="color:var(--text-muted); font-size:0.75rem;">Undo</button>
+        </div>
+        <div class="score-btns" id="blue-score-btns">
+          <button class="clay clay--blue score-btn" data-corner="blue" data-pts="1">+1</button>
+          <button class="clay clay--blue score-btn" data-corner="blue" data-pts="2">+2</button>
+          <button class="clay clay--blue score-btn" data-corner="blue" data-pts="3">+3</button>
+          <button class="clay clay--blue score-btn" data-corner="blue" data-pts="4">+4</button>
+          <button class="clay clay--blue score-btn" data-corner="blue" data-pts="5">+5</button>
+        </div>
+        <div style="display:flex; gap: var(--sp-2); margin-top: var(--sp-2);">
+          <button class="clay clay--ghost score-btn" data-corner="blue" data-pts="-1" style="flex:1; font-size:0.78rem;">-1 Pt</button>
+          <button class="clay clay--ghost gj-btn" id="blue-gj-btn" style="flex:2; margin-top:0; font-size:0.78rem;">⚠ +1 Gam-jeom</button>
+          <button class="clay clay--ghost" id="blue-vr-btn" style="flex:1.2; font-size:0.75rem;">VR: <span id="blue-vr-val">1</span></button>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-xs muted uppercase font-bold" style="margin-bottom: var(--sp-2);">Round History</div>
+        <div id="blue-rounds" style="display:flex; gap: var(--sp-1); flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+
+  </div><!-- /score-area -->
+
+  <!-- Bottom bar -->
+  <div class="glass bottom-bar">
+    <button class="clay clay--amber" id="next-round-btn">Next Round →</button>
+    <button class="clay clay--danger" id="reset-btn">↺ Reset Match</button>
+    <a href="/pages/scoreboard/?id=" id="scoreboard-link" target="_blank" class="clay clay--ghost clay--sm">📺 Scoreboard ↗</a>
+  </div>
+
+</div><!-- /control-page -->
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="shortcuts-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center;">
+  <div class="glass" style="max-width:520px; width:90%; padding: var(--sp-6); border-radius: var(--r-md); border: 1px solid rgba(255,255,255,0.15);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sp-4);">
+      <h3 class="text-lg font-bold" style="color:var(--text-bright);">⌨️ Operator Keyboard Shortcuts</h3>
+      <button class="clay clay--ghost clay--xs" id="close-shortcuts-btn" style="padding:4px 8px;">✕</button>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); font-size:0.85rem; margin-bottom: var(--sp-4);">
+      <div style="background:rgba(200,30,58,0.06); padding:12px; border-radius:8px; border:1px solid rgba(200,30,58,0.2);">
+        <div style="font-weight:700; color:var(--red); margin-bottom:8px;">🔴 Red Corner</div>
+        <div style="margin-bottom:4px;"><kbd>1</kbd> - <kbd>5</kbd> : Add 1 - 5 Points</div>
+        <div style="margin-bottom:4px;"><kbd>A</kbd> : Deduct 1 Point</div>
+        <div style="margin-bottom:4px;"><kbd>Z</kbd> : +1 Gam-jeom</div>
+        <div><kbd>X</kbd> : Toggle VR</div>
+      </div>
+      <div style="background:rgba(30,95,200,0.06); padding:12px; border-radius:8px; border:1px solid rgba(30,95,200,0.2);">
+        <div style="font-weight:700; color:var(--blue); margin-bottom:8px;">🔵 Blue Corner</div>
+        <div style="margin-bottom:4px;"><kbd>6</kbd> - <kbd>0</kbd> : Add 1 - 5 Points</div>
+        <div style="margin-bottom:4px;"><kbd>L</kbd> : Deduct 1 Point</div>
+        <div style="margin-bottom:4px;"><kbd>M</kbd> : +1 Gam-jeom</div>
+        <div><kbd>N</kbd> : Toggle VR</div>
+      </div>
+    </div>
+    <hr class="divider" style="margin: var(--sp-3) 0;" />
+    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);">
+      <div><kbd>Space</kbd> : Start / Pause Timer</div>
+      <div><kbd>H</kbd> : Sound Arena Horn</div>
+    </div>
+  </div>
+</div>
+
+<style>
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 4px;
+  color: var(--amber);
+}
+</style>
+
+<script type="module" src="./control.js"></script>
+</body>
+</html>

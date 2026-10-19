@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Scoreboard — Taekwondo</title>
+  <meta name="description" content="Live Taekwondo match scoreboard venue display." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="../../styles/reset.css" />
+  <link rel="stylesheet" href="../../styles/theme.css" />
+  <style>
+    /* Full viewport venue display */
+    body {
+      background: var(--bg);
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      color: #F5F6F8;
+      font-family: var(--font-body);
+    }
+
+    .sb-root {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+      background: #0B0D12;
+      overflow: hidden;
+    }
+
+    /* ── Corner Sections ─────────────────────────────────────────────────── */
+    .sb-corner {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(24px, 3.5vw, 48px) clamp(28px, 4vw, 56px);
+      min-width: 0;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .sb-corner--red {
+      background: linear-gradient(160deg, #7A0F22 0%, #0B0D12 65%);
+      border-top: 5px solid #C81E3A;
+    }
+
+    .sb-corner--blue {
+      background: linear-gradient(200deg, #0F2E7A 0%, #0B0D12 65%);
+      border-top: 5px solid #1E5FC8;
+    }
+
+    /* Top Corner Header */
+    .sb-corner-top {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+    .sb-corner--blue .sb-corner-top {
+      justify-content: flex-end;
+    }
+
+    .sb-name {
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: clamp(24px, 2.8vw, 42px);
+      letter-spacing: 0.01em;
+      min-width: 0;
+      overflow-wrap: break-word;
+      line-height: 1.1;
+    }
+
+    .sb-country {
+      font-weight: 700;
+      font-size: clamp(14px, 1.2vw, 18px);
+      letter-spacing: 0.08em;
+      color: #9AA3B8;
+      white-space: nowrap;
+    }
+
+    /* Center Score Container */
+    .sb-corner-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 2vh, 24px);
+      padding: 12px 0;
+      min-width: 0;
+    }
+
+    .sb-score {
+      font-family: var(--font-display);
+      font-weight: 800;
+      line-height: 1;
+      color: #F5F6F8;
+      font-size: clamp(84px, 12vw, 172px);
+      text-shadow: 0 0 45px rgba(255,255,255,0.18);
+      user-select: none;
+      transition: transform 150ms ease;
+    }
+
+    .sb-corner--red .sb-score {
+      text-shadow: 0 0 50px rgba(200, 30, 58, 0.45);
+    }
+
+    .sb-corner--blue .sb-score {
+      text-shadow: 0 0 50px rgba(30, 95, 200, 0.45);
+    }
+
+    /* Round Pills Row */
+    .sb-round-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sb-chip {
+      min-width: 36px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #9AA3B8;
+      transition: all 250ms ease;
+    }
+
+    .sb-chip--red-won {
+      background: rgba(200,30,58,0.25);
+      border-color: #C81E3A;
+      color: #FF6B82;
+      box-shadow: 0 0 10px rgba(200,30,58,0.3);
+    }
+
+    .sb-chip--blue-won {
+      background: rgba(30,95,200,0.25);
+      border-color: #1E5FC8;
+      color: #7BB2FF;
+      box-shadow: 0 0 10px rgba(30,95,200,0.3);
+    }
+
+    .sb-chip--active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    /* VR & Doctor Badges */
+    .sb-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sb-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #9AA3B8;
+      white-space: nowrap;
+    }
+
+    .sb-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3DDC84;
+      display: inline-block;
+    }
+
+    .sb-badge--used {
+      opacity: 0.35;
+      text-decoration: line-through;
+    }
+    .sb-badge--used .sb-badge-dot {
+      background: #EF4444;
+    }
+
+    /* Bottom Gam-Jeom Row */
+    .sb-corner-bottom {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .sb-corner--blue .sb-corner-bottom {
+      justify-content: flex-end;
+    }
+
+    .sb-gj-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #9AA3B8;
+      text-transform: uppercase;
+    }
+
+    .sb-gj-num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(22px, 2.2vw, 32px);
+      color: #F5F6F8;
+    }
+
+    /* ── Center Column ───────────────────────────────────────────────────── */
+    .sb-center {
+      flex: 0 1 clamp(260px, 23vw, 340px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(24px, 3vh, 44px) clamp(16px, 1.8vw, 24px);
+      min-width: 0;
+      box-sizing: border-box;
+      text-align: center;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      background: rgba(11, 13, 18, 0.85);
+      backdrop-filter: blur(8px);
+    }
+
+    .sb-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: #9AA3B8;
+      text-transform: uppercase;
+    }
+
+    .sb-match-code {
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: clamp(18px, 1.8vw, 24px);
+      margin-top: 4px;
+      color: #F5F6F8;
+    }
+
+    .sb-timer-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      width: 100%;
+    }
+
+    .sb-timer {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--amber);
+      line-height: 1;
+      font-size: clamp(54px, 6.5vw, 96px);
+      text-shadow: 0 0 28px rgba(245,197,24,0.45);
+      letter-spacing: 0.04em;
+    }
+
+    .sb-timer--urgent {
+      color: #EF4444;
+      text-shadow: 0 0 35px rgba(239, 68, 68, 0.6);
+      animation: urgentPulse 0.5s ease infinite alternate;
+    }
+
+    @keyframes urgentPulse {
+      from { opacity: 1; }
+      to   { opacity: 0.6; }
+    }
+
+    /* Status Pill */
+    .sb-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+      text-transform: uppercase;
+      transition: all 200ms ease;
+    }
+
+    .sb-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .sb-round-val {
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: clamp(22px, 2.2vw, 30px);
+      margin-top: 4px;
+    }
+
+    .sb-event-sub {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: rgba(154,163,184,0.55);
+      text-transform: uppercase;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Finished Overlay Banner */
+    .sb-finished-banner {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(90deg, #7A0F22, #C49B08, #0F2E7A);
+      color: #FFFFFF;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 10px 0;
+      z-index: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    /* Responsive for vertical / mobile screens */
+    @media (max-width: 900px) {
+      body { overflow-y: auto; }
+      .sb-root { flex-direction: column; height: auto; min-height: 100vh; }
+      .sb-center { order: -1; width: 100%; border-left: none; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 24px; }
+      .sb-corner { padding: 32px 24px; }
+      .sb-score { font-size: clamp(64px, 22vw, 120px); }
+      .sb-timer { font-size: clamp(48px, 16vw, 76px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- Finished Banner -->
+<div id="finished-banner" class="sb-finished-banner">
+  🏆 Match Complete
+</div>
+
+<div class="sb-root" id="scoreboard">
+
+  <!-- 🔴 RED CORNER (Hong) -->
+  <div class="sb-corner sb-corner--red">
+    <div class="sb-corner-top">
+      <span class="sb-name" id="sb-red-name">Red Corner</span>
+      <span class="sb-country" id="sb-red-country">KOR</span>
+    </div>
+
+    <div class="sb-corner-body">
+      <div class="sb-score" id="sb-red-score">00</div>
+
+      <div class="sb-round-chips" id="sb-red-rounds">
+        <span class="sb-chip" id="sb-red-r1">R1</span>
+        <span class="sb-chip" id="sb-red-r2">R2</span>
+        <span class="sb-chip" id="sb-red-r3">R3</span>
+      </div>
+
+      <div class="sb-badges">
+        <span class="sb-badge" id="sb-red-vr">
+          <span class="sb-badge-dot"></span> VR QUOTA
+        </span>
+        <span class="sb-badge">
+          <span class="sb-badge-dot"></span> DOC TIMEOUT
+        </span>
+      </div>
+    </div>
+
+    <div class="sb-corner-bottom">
+      <span class="sb-gj-label">GAM-JEOM</span>
+      <span class="sb-gj-num" id="sb-red-gj-count">0</span>
+    </div>
+  </div>
+
+  <!-- ⏱ CENTER COLUMN (Timer, Status, Round) -->
+  <div class="sb-center">
+    <div>
+      <div class="sb-label">MATCH</div>
+      <div class="sb-match-code" id="sb-match-code">M-201</div>
+    </div>
+
+    <div class="sb-timer-block">
+      <div class="sb-timer" id="sb-timer">02:00</div>
+      <div class="sb-status-pill" id="sb-status-pill">
+        <span class="sb-status-dot" id="sb-status-dot"></span>
+        <span id="sb-status-text">LIVE</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="sb-label">ROUND</div>
+      <div class="sb-round-val" id="sb-round">
+        <span id="sb-cur-round">1</span>
+        <span style="color: #9AA3B8; font-weight: 600;">/</span>
+        <span id="sb-total-rounds" style="color: #9AA3B8; font-weight: 600;">3</span>
+      </div>
+    </div>
+
+    <div class="sb-event-sub" id="sb-event-sub">Taekwondo Scoring</div>
+  </div>
+
+  <!-- 🔵 BLUE CORNER (Chung) -->
+  <div class="sb-corner sb-corner--blue">
+    <div class="sb-corner-top">
+      <span class="sb-country" id="sb-blue-country">THA</span>
+      <span class="sb-name" id="sb-blue-name">Blue Corner</span>
+    </div>
+
+    <div class="sb-corner-body">
+      <div class="sb-score" id="sb-blue-score">00</div>
+
+      <div class="sb-round-chips" id="sb-blue-rounds">
+        <span class="sb-chip" id="sb-blue-r1">R1</span>
+        <span class="sb-chip" id="sb-blue-r2">R2</span>
+        <span class="sb-chip" id="sb-blue-r3">R3</span>
+      </div>
+
+      <div class="sb-badges">
+        <span class="sb-badge" id="sb-blue-vr">
+          <span class="sb-badge-dot"></span> VR QUOTA
+        </span>
+        <span class="sb-badge">
+          <span class="sb-badge-dot"></span> DOC TIMEOUT
+        </span>
+      </div>
+    </div>
+
+    <div class="sb-corner-bottom">
+      <span class="sb-gj-num" id="sb-blue-gj-count">0</span>
+      <span class="sb-gj-label">GAM-JEOM</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating Fullscreen Button -->
+<button id="fullscreen-btn" title="Toggle Fullscreen (F)" style="position:fixed; bottom:16px; right:16px; z-index:90; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#F5F6F8; border-radius:8px; padding:8px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; backdrop-filter:blur(10px); display:flex; align-items:center; gap:6px; opacity:0.6; transition:opacity 0.2s;">
+  <span>⛶</span> Fullscreen
+</button>
+
+<!-- Waiting for Match Overlay -->
+<div id="waiting-overlay" style="display:none; position:fixed; inset:0; background:#0B0D12; z-index:100; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px;">
+  <div style="font-size: 4rem; margin-bottom: 16px; filter: drop-shadow(0 0 24px rgba(245,197,24,0.4));">🥋</div>
+  <h1 style="font-family: var(--font-display); font-size: clamp(28px, 4vw, 48px); font-weight:800; letter-spacing:0.04em; margin-bottom: 12px; color:#F5F6F8;">TAEKWONDO SCOREBOARD</h1>
+  <p id="waiting-sub" style="font-size: clamp(14px, 1.5vw, 18px); color: var(--text-muted); max-width: 520px; line-height: 1.5; margin-bottom: 24px;">Waiting for tournament operator to initialize match…</p>
+  <div class="sb-status-pill" style="padding: 8px 18px; font-size:0.85rem; display:inline-flex; align-items:center; gap:8px;">
+    <span class="sb-status-dot" style="background:#22c55e;"></span> LIVE SYSTEM READY
+  </div>
+</div>
+
+<script type="module" src="./scoreboard.js"></script>
+</body>
+</html>

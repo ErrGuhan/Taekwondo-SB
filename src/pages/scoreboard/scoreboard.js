@@ -38,6 +38,37 @@ async function loadAll() {
 }
 
 async function loadMatch() {
+  if (matchId === 'demo') {
+    match = {
+      id: 'demo',
+      match_code: 'MAT-1 · Senior M-68kg',
+      division: 'Senior',
+      gender: 'Male',
+      weight_class: '-68kg',
+      round_seconds: 120,
+      total_rounds: 3,
+      red_name: 'KIM Tae-Hun',
+      red_country: 'KOR',
+      blue_name: 'LOPEZ Steven',
+      blue_country: 'USA',
+      status: 'live',
+      current_round: 1,
+      timer_status: 'idle',
+      timer_remaining_ms: 120000,
+      timer_started_at: null,
+      red_gam_jeom: 0,
+      blue_gam_jeom: 0,
+      red_vr_quota: 1,
+      blue_vr_quota: 1,
+      operator_id: 'demo-operator-id',
+      created_at: new Date().toISOString()
+    }
+    hideWaitingScreen()
+    renderAll()
+    startTimerLoop()
+    return true
+  }
+
   const { data, error } = await supabase
     .from('matches')
     .select('*')
@@ -57,6 +88,14 @@ async function loadMatch() {
 }
 
 async function loadScoreData() {
+  if (matchId === 'demo') {
+    scoreEvents  = []
+    roundResults = []
+    renderScores()
+    renderRoundChips()
+    return
+  }
+
   const [evRes, rrRes] = await Promise.all([
     supabase
       .from('score_events')
@@ -79,6 +118,7 @@ async function loadScoreData() {
 
 // ── Realtime Subscription ─────────────────────────────────────────────────────
 function subscribeRealtime() {
+  if (matchId === 'demo') return
   supabase
     .channel(`scoreboard-${matchId}`)
     .on('postgres_changes', {

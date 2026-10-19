@@ -2,28 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Match Setup — Taekwondo Scoring</title>
   <meta name="description" content="Create a new Taekwondo match and get scoring links." />
+  <!-- Security meta tags -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
   <link rel="stylesheet" href="../../styles/reset.css" />
   <link rel="stylesheet" href="../../styles/theme.css" />
   <style>
+    /* ── Setup layout ──────────────────────────────────────────────────────── */
     .setup-layout {
       max-width: 860px;
       margin: 0 auto;
       width: 100%;
     }
+
+    /* ── Header ────────────────────────────────────────────────────────────── */
     .setup-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: var(--sp-6);
+      gap: var(--sp-3);
+      flex-wrap: wrap;
     }
     .header-left {
-      display: flex; align-items: center; gap: var(--sp-3);
+      display: flex; align-items: center; gap: var(--sp-3); min-width: 0;
     }
     .header-logo {
       font-size: 1.5rem;
@@ -31,18 +42,27 @@
       border-radius: 10px;
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
     .header-title {
-      font-size: 1.2rem;
+      font-size: clamp(1rem, 3vw, 1.2rem);
       font-weight: 800;
       letter-spacing: -0.01em;
+      white-space: nowrap;
+      margin: 0;
     }
     .header-sub {
       font-size: 0.75rem;
       color: var(--text-muted);
     }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+    }
 
-    /* Two-column corner grid */
+    /* ── Two-column corner grid ────────────────────────────────────────────── */
     .corners-grid {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -59,6 +79,7 @@
       font-size: 0.85rem;
       color: var(--text-muted);
       margin-top: 28px; /* align with form inputs */
+      flex-shrink: 0;
     }
 
     .corner-card {
@@ -79,14 +100,14 @@
     .corner-title--red  { color: #FF4D6A; }
     .corner-title--blue { color: #5B9CF6; }
 
-    /* Match info */
+    /* ── Match info ────────────────────────────────────────────────────────── */
     .match-info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: var(--sp-4);
     }
 
-    /* Links result card */
+    /* ── Links result card ─────────────────────────────────────────────────── */
     .links-card {
       padding: var(--sp-6);
       display: flex;
@@ -100,6 +121,7 @@
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.4rem;
+      flex-shrink: 0;
     }
     .link-label {
       font-size: 0.7rem;
@@ -117,10 +139,92 @@
       flex-wrap: wrap;
     }
 
-    @media (max-width: 600px) {
-      .corners-grid { grid-template-columns: 1fr; }
-      .vs-badge { display: none; }
+    /* Action card for control/scoreboard links */
+    .action-card {
+      padding: var(--sp-4) var(--sp-5);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-4);
+      flex-wrap: wrap;
     }
+    .action-card--red  { border-left: 4px solid var(--red); }
+    .action-card--blue { border-left: 4px solid var(--blue); }
+
+    .action-card-btns {
+      display: flex;
+      gap: var(--sp-2);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Recent match row ──────────────────────────────────────────────────── */
+    .match-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: var(--r-md);
+      background: var(--glass-fill);
+      border: 1px solid var(--glass-border);
+      flex-wrap: wrap;
+    }
+    .match-row-info { flex: 1; min-width: 0; }
+    .match-row-btns { display: flex; gap: var(--sp-2); flex-shrink: 0; }
+
+    /* ── Mobile adjustments (< 600px) ──────────────────────────────────────── */
+    @media (max-width: 599px) {
+      .corners-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sp-3);
+      }
+      .vs-badge { display: none; }
+      .corner-card { padding: var(--sp-4); }
+
+      .setup-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: var(--sp-4);
+      }
+
+      .links-card { padding: var(--sp-4); }
+      .action-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: var(--sp-3) var(--sp-4);
+      }
+      .action-card-btns { width: 100%; justify-content: flex-end; }
+
+      .match-info-grid { grid-template-columns: 1fr 1fr; }
+
+      .match-row { flex-direction: column; align-items: flex-start; }
+      .match-row-btns { width: 100%; justify-content: flex-end; }
+
+      #user-email { display: none; } /* hide long email on tiny screens */
+    }
+
+    /* ── Tablet (600px – 900px) ────────────────────────────────────────────── */
+    @media (min-width: 600px) and (max-width: 899px) {
+      .corners-grid { grid-template-columns: 1fr auto 1fr; }
+    }
+
+    /* ── Desktop (> 900px) ─────────────────────────────────────────────────── */
+    @media (min-width: 900px) {
+      .page { padding: var(--sp-6); }
+    }
+
+    /* ── Error message (global shared) ────────────────────────────────────── */
+    .error-msg {
+      color: #F87171;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: var(--r-sm);
+      display: none;
+    }
+    .error-msg--show { display: block; }
   </style>
 </head>
 <body>
@@ -130,28 +234,29 @@
       <!-- Header -->
       <header class="setup-header">
         <div class="header-left">
-          <div class="header-logo">🥋</div>
+          <div class="header-logo" aria-hidden="true">🥋</div>
           <div>
-            <div class="header-title">Taekwondo Scoring</div>
+            <h1 class="header-title">Taekwondo Scoring</h1>
             <div class="header-sub">Match Setup</div>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap: var(--sp-3);">
-          <span id="user-email" class="text-sm muted"></span>
-          <button class="clay clay--ghost clay--sm" id="sign-out-btn">Sign Out</button>
+        <div class="header-right">
+          <span id="user-email" class="text-sm muted" aria-label="Signed in as"></span>
+          <button class="clay clay--ghost clay--sm" id="sign-out-btn" type="button">Sign Out</button>
         </div>
       </header>
 
       <!-- Match creation form -->
       <div id="form-section">
         <form id="setup-form" novalidate>
+
           <!-- Match Info -->
           <div class="glass" style="padding: var(--sp-5); margin-bottom: var(--sp-4);">
             <h2 class="text-sm uppercase font-bold muted" style="margin-bottom: var(--sp-4);">Match Details</h2>
             <div class="match-info-grid">
               <div class="field">
                 <label for="match-code">Match Code</label>
-                <input id="match-code" type="text" placeholder="M-201" />
+                <input id="match-code" type="text" placeholder="M-201" autocomplete="off" />
               </div>
               <div class="field">
                 <label for="division">Division</label>
@@ -173,7 +278,7 @@
               </div>
               <div class="field">
                 <label for="weight-class">Weight Class</label>
-                <input id="weight-class" type="text" placeholder="e.g. -68kg" />
+                <input id="weight-class" type="text" placeholder="e.g. -68kg" autocomplete="off" />
               </div>
               <div class="field">
                 <label for="total-rounds">Rounds</label>
@@ -202,36 +307,48 @@
             <div class="glass corner-card corner-card--red">
               <div class="corner-title corner-title--red">🔴 Hong (Red Corner)</div>
               <div class="field">
-                <label for="red-name">Athlete Name *</label>
-                <input id="red-name" type="text" placeholder="Full name" required />
+                <label for="red-name">Athlete Name <span aria-hidden="true">*</span></label>
+                <input id="red-name" type="text" placeholder="Full name" required autocomplete="off" />
               </div>
               <div class="field">
                 <label for="red-country">Country Code</label>
-                <input id="red-country" type="text" placeholder="e.g. IND" maxlength="4"
-                       style="text-transform:uppercase; letter-spacing:0.1em;" />
+                <input
+                  id="red-country"
+                  type="text"
+                  placeholder="e.g. IND"
+                  maxlength="4"
+                  autocomplete="off"
+                  style="text-transform:uppercase; letter-spacing:0.1em;"
+                />
               </div>
             </div>
 
             <!-- VS -->
-            <div class="vs-badge">VS</div>
+            <div class="vs-badge" aria-hidden="true">VS</div>
 
             <!-- Blue -->
             <div class="glass corner-card corner-card--blue">
               <div class="corner-title corner-title--blue">🔵 Chung (Blue Corner)</div>
               <div class="field">
-                <label for="blue-name">Athlete Name *</label>
-                <input id="blue-name" type="text" placeholder="Full name" required />
+                <label for="blue-name">Athlete Name <span aria-hidden="true">*</span></label>
+                <input id="blue-name" type="text" placeholder="Full name" required autocomplete="off" />
               </div>
               <div class="field">
                 <label for="blue-country">Country Code</label>
-                <input id="blue-country" type="text" placeholder="e.g. KOR" maxlength="4"
-                       style="text-transform:uppercase; letter-spacing:0.1em;" />
+                <input
+                  id="blue-country"
+                  type="text"
+                  placeholder="e.g. KOR"
+                  maxlength="4"
+                  autocomplete="off"
+                  style="text-transform:uppercase; letter-spacing:0.1em;"
+                />
               </div>
             </div>
           </div>
 
           <!-- Submit -->
-          <div id="form-error" class="error-msg" style="margin-bottom: var(--sp-3);"></div>
+          <div id="form-error" class="error-msg" role="alert" aria-live="polite" style="margin-bottom: var(--sp-3);"></div>
           <button type="submit" class="clay clay--amber clay--xl clay--block" id="init-btn">
             ⚡ Initialize Match
           </button>
@@ -242,7 +359,7 @@
       <div id="links-section" style="display:none;">
         <div class="glass links-card">
           <div style="display:flex; align-items:center; gap: var(--sp-3);">
-            <div class="links-success-icon">✓</div>
+            <div class="links-success-icon" aria-hidden="true">✓</div>
             <div>
               <div class="text-lg font-bold">Match Created!</div>
               <div class="text-sm muted" id="match-meta"></div>
@@ -254,42 +371,42 @@
           <input id="scoreboard-link" type="hidden" />
 
           <!-- Control Panel Action Card -->
-          <div class="glass glass--sm" style="padding: var(--sp-4) var(--sp-5); border-left: 4px solid var(--red); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;">
+          <div class="glass glass--sm action-card action-card--red">
             <div>
               <div style="font-weight: 800; font-size: 1.05rem; color: #FF4D6A; display: flex; align-items: center; gap: 8px;">
-                <span>🎮</span> Control Panel
+                <span aria-hidden="true">🎮</span> Control Panel
               </div>
               <div class="text-xs muted" style="margin-top: 2px;">Operator console for real-time scoring and timer management</div>
             </div>
-            <div style="display: flex; gap: var(--sp-2); align-items: center;">
+            <div class="action-card-btns">
               <button class="clay clay--ghost clay--sm" id="copy-control" type="button">📋 Copy Link</button>
-              <a id="open-control" href="#" target="_blank" class="clay clay--red clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Control →</a>
+              <a id="open-control" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--red clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Control →</a>
             </div>
           </div>
 
           <!-- Scoreboard Action Card -->
-          <div class="glass glass--sm" style="padding: var(--sp-4) var(--sp-5); border-left: 4px solid var(--blue); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;">
+          <div class="glass glass--sm action-card action-card--blue">
             <div>
               <div style="font-weight: 800; font-size: 1.05rem; color: #5B9CF6; display: flex; align-items: center; gap: 8px;">
-                <span>📺</span> Scoreboard
+                <span aria-hidden="true">📺</span> Scoreboard
               </div>
               <div class="text-xs muted" style="margin-top: 2px;">Public broadcast view for arena venue TVs and projectors</div>
             </div>
-            <div style="display: flex; gap: var(--sp-2); align-items: center;">
+            <div class="action-card-btns">
               <button class="clay clay--ghost clay--sm" id="copy-scoreboard" type="button">📋 Copy Link</button>
-              <a id="open-scoreboard" href="#" target="_blank" class="clay clay--blue clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Scoreboard →</a>
+              <a id="open-scoreboard" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--blue clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Scoreboard →</a>
             </div>
           </div>
 
           <hr class="divider" style="margin: var(--sp-2) 0;" />
 
           <div class="links-actions">
-            <button class="clay clay--amber" id="new-match-btn">+ New Match</button>
+            <button class="clay clay--amber" id="new-match-btn" type="button">+ New Match</button>
           </div>
         </div>
 
         <!-- Previous matches -->
-        <div id="matches-list" style="margin-top: var(--sp-5);"></div>
+        <div id="matches-list" style="margin-top: var(--sp-5);" aria-label="Recent matches" role="region"></div>
       </div>
 
     </div><!-- /layout -->

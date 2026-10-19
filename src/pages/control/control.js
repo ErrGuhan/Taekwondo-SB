@@ -45,6 +45,36 @@ let timerExpiredFired = false
 
 // ── Data Fetching ─────────────────────────────────────────────────────────────
 async function loadMatch() {
+  if (matchId === 'demo') {
+    match = {
+      id: 'demo',
+      match_code: 'MAT-1 · Senior M-68kg',
+      division: 'Senior',
+      gender: 'Male',
+      weight_class: '-68kg',
+      round_seconds: 120,
+      total_rounds: 3,
+      red_name: 'KIM Tae-Hun',
+      red_country: 'KOR',
+      blue_name: 'LOPEZ Steven',
+      blue_country: 'USA',
+      status: 'live',
+      current_round: 1,
+      timer_status: 'idle',
+      timer_remaining_ms: 120000,
+      timer_started_at: null,
+      red_gam_jeom: 0,
+      blue_gam_jeom: 0,
+      red_vr_quota: 1,
+      blue_vr_quota: 1,
+      operator_id: 'demo-operator-id',
+      created_at: new Date().toISOString()
+    }
+    renderMatch()
+    startTimerLoop()
+    return true
+  }
+
   const { data, error } = await supabase
     .from('matches')
     .select('*')
@@ -63,6 +93,15 @@ async function loadMatch() {
 }
 
 async function loadScoreEvents() {
+  if (matchId === 'demo') {
+    scores = scores && Object.keys(scores.red || {}).length ? scores : { red: { 1: 0, 2: 0, 3: 0 }, blue: { 1: 0, 2: 0, 3: 0 } }
+    roundResults = roundResults || []
+    renderScores()
+    renderRoundHistory()
+    renderRoundWins()
+    return
+  }
+
   const [eventsRes, resultsRes] = await Promise.all([
     supabase
       .from('score_events')
@@ -103,6 +142,7 @@ function roundScore(corner, rnd) {
 
 // ── Realtime Subscription ─────────────────────────────────────────────────────
 function subscribeRealtime() {
+  if (matchId === 'demo') return
   supabase
     .channel(`control-${matchId}`)
     .on('postgres_changes', {
@@ -375,11 +415,13 @@ function showFinishedOverlay() {
 function showMissingMatch(reason) {
   const container = document.querySelector('.score-area')
   if (container) {
+    const safeReason = String(reason || '').replace(/[<>"'&]/g, c =>
+      ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[c]))
     container.innerHTML = `
       <div class="glass" style="grid-column: 1 / -1; padding: var(--sp-8); text-align: center; max-width: 600px; margin: 40px auto;">
         <div style="font-size: 3rem; margin-bottom: var(--sp-4);">🥋</div>
         <h2 class="text-2xl font-bold" style="margin-bottom: var(--sp-2);">Active Match Not Found</h2>
-        <p class="muted" style="margin-bottom: var(--sp-6); font-size: 0.95rem;">${reason}</p>
+        <p class="muted" style="margin-bottom: var(--sp-6); font-size: 0.95rem;">${safeReason}</p>
         <div style="display:flex; justify-content:center; gap: var(--sp-3);">
           <a href="/pages/setup/" class="clay clay--amber clay--lg" style="text-decoration:none;">Go to Match Setup →</a>
         </div>
@@ -398,8 +440,91 @@ function hideLoading() {
 
 // ── Action Dispatch (RPC) ─────────────────────────────────────────────────────
 async function rpc(fn, params = {}) {
+  if (matchId === 'demo') {
+    handleDemoRpc(fn, params)
+    return
+  }
   const { error } = await supabase.rpc(fn, { p_match_id: matchId, ...params })
   if (error) toast(error.message, 'error')
+}
+
+function handleDemoRpc(fn, params) {
+  if (!match) return
+  const curRound = match.current_round || 1
+
+  switch (fn) {
+    case 'start_timer':
+      match.timer_status = 'running'
+      match.timer_started_at = new Date().toISOString()
+      startTimerLoop()
+      toast('Timer started (Demo)', 'info')
+      break
+
+    case 'pause_timer':
+      match.timer_status = 'paused'
+      if (stopTimer) stopTimer()
+      toast('Timer paused (Demo)', 'info')
+      break
+
+    case 'record_point': {
+      const corner = params.p_corner
+      const pts = params.p_points
+      if (!scores[corner]) scores[corner] = {}
+      scores[corner][curRound] = (scores[corner][curRound] || 0) + pts
+      renderScores()
+      toast(`+${pts} ${corner.toUpperCase()} (Demo)`, 'info')
+      break
+    }
+
+    case 'record_gam_jeom': {
+      const corner = params.p_corner
+      const other = corner === 'red' ? 'blue' : 'red'
+      match[corner + '_gam_jeom'] = (match[corner + '_gam_jeom'] || 0) + 1
+      if (!scores[other]) scores[other] = {}
+      scores[other][curRound] = (scores[other][curRound] || 0) + 1
+      renderGamJeom()
+      renderScores()
+      toast(`Gam-jeom on ${corner.toUpperCase()} (Demo)`, 'warning')
+      break
+    }
+
+    case 'next_round': {
+      if (match.current_round >= match.total_rounds) {
+        match.status = 'finished'
+        showFinishedOverlay()
+      } else {
+        match.current_round++
+        match.timer_status = 'idle'
+        match.timer_remaining_ms = match.round_seconds * 1000
+        renderMatch()
+        renderScores()
+        toast(`Round ${match.current_round} (Demo)`, 'info')
+      }
+      break
+    }
+
+    case 'reset_match':
+      scores = { red: { 1: 0, 2: 0, 3: 0 }, blue: { 1: 0, 2: 0, 3: 0 } }
+      match.current_round = 1
+      match.red_gam_jeom = 0
+      match.blue_gam_jeom = 0
+      match.status = 'live'
+      match.timer_status = 'idle'
+      match.timer_remaining_ms = match.round_seconds * 1000
+      renderMatch()
+      renderScores()
+      renderGamJeom()
+      toast('Match reset (Demo)', 'success')
+      break
+
+    case 'adjust_timer':
+      match.timer_remaining_ms = Math.max(0, (match.timer_remaining_ms || 120000) + (params.p_delta_seconds * 1000))
+      startTimerLoop()
+      break
+
+    default:
+      console.log('[demo] rpc:', fn, params)
+  }
 }
 
 // ── Event Listeners ───────────────────────────────────────────────────────────

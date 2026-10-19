@@ -5,6 +5,12 @@ import { supabase } from './supabase.js'
  */
 export async function getSession() {
   try {
+    if (typeof localStorage !== 'undefined') {
+      const mock = localStorage.getItem('tankondo_mock_session')
+      if (mock) {
+        try { return JSON.parse(mock) } catch {}
+      }
+    }
     const { data: { session } } = await supabase.auth.getSession()
     return session
   } catch (err) {
@@ -15,9 +21,23 @@ export async function getSession() {
 
 /**
  * Require auth — redirect to login if not signed in.
+ * Allows instant offline testing / demo when ?id=demo or ?demo=1 is in URL.
  * @returns {Promise<import('@supabase/supabase-js').Session>}
  */
 export async function requireAuth(redirectTo = '/') {
+  if (typeof location !== 'undefined') {
+    const params = new URLSearchParams(location.search)
+    if (params.get('id') === 'demo' || params.get('demo') === '1') {
+      return {
+        user: {
+          id: 'demo-operator-id',
+          email: 'demo@taekwondo.org',
+          user_metadata: { name: 'Demo Operator' }
+        }
+      }
+    }
+  }
+
   const session = await getSession()
   if (!session) {
     window.location.href = redirectTo

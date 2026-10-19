@@ -125,7 +125,7 @@ document.getElementById('new-match-btn').addEventListener('click', () => {
 
 // ── Recent matches list ───────────────────────────────────────────────────────
 async function loadRecentMatches() {
-  if (!session) return
+  if (!session?.user?.id || session.user.id === 'demo-operator-id') return
 
   const res = await supabase
     .from('matches')
@@ -143,14 +143,14 @@ async function loadRecentMatches() {
     <div style="display:flex; flex-direction:column; gap: var(--sp-2);">
       ${data.map(m => `
         <div class="glass glass--sm" style="padding: var(--sp-3) var(--sp-4); display:flex; align-items:center; gap: var(--sp-4);">
-          <span class="status-chip status-chip--${m.status || 'setup'}">${m.status || 'setup'}</span>
+          <span class="status-chip status-chip--${esc(m.status || 'setup')}">${esc(m.status || 'setup')}</span>
           <div style="flex:1;">
             <div class="text-sm font-bold">${esc(m.red_name)} vs ${esc(m.blue_name)}</div>
-            <div class="text-xs muted">${m.match_code || ''} · ${m.created_at ? new Date(m.created_at).toLocaleString() : 'Ready'}</div>
+            <div class="text-xs muted">${esc(m.match_code || '')} · ${m.created_at ? new Date(m.created_at).toLocaleString() : 'Ready'}</div>
           </div>
           <div style="display:flex; gap: var(--sp-2);">
-            <a href="/pages/control/?id=${m.id}" class="clay clay--ghost clay--sm">Control</a>
-            <a href="/pages/scoreboard/?id=${m.id}" class="clay clay--blue clay--sm">Board</a>
+            <a href="/pages/control/?id=${encodeURIComponent(m.id)}" class="clay clay--ghost clay--sm">Control</a>
+            <a href="/pages/scoreboard/?id=${encodeURIComponent(m.id)}" class="clay clay--blue clay--sm">Board</a>
           </div>
         </div>
       `).join('')}

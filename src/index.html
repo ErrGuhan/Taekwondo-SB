@@ -2,20 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Taekwondo Scoring — Login</title>
   <meta name="description" content="Operator login for the Taekwondo live scoring system." />
+  <!-- Security meta tags -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
   <link rel="stylesheet" href="./styles/reset.css" />
   <link rel="stylesheet" href="./styles/theme.css" />
   <style>
+    /* ── Login Card ──────────────────────────────────────────────────────────── */
     .login-card {
       width: 100%;
       max-width: 420px;
       padding: var(--sp-7) var(--sp-6);
     }
+
+    /* ── Logo Mark ────────────────────────────────────────────────────────────── */
     .logo-mark {
       width: 56px; height: 56px;
       background: linear-gradient(135deg, var(--amber), var(--amber-dark));
@@ -25,25 +34,52 @@
       box-shadow: 0 0 30px var(--amber-glow);
       margin-bottom: var(--sp-5);
     }
-    .login-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
-    .login-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: var(--sp-6); }
+
+    .login-title {
+      font-size: clamp(1.35rem, 5vw, 1.6rem);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: var(--sp-6);
+    }
+
     .login-form { display: flex; flex-direction: column; gap: var(--sp-4); }
-    .error-msg {
-      color: #F87171;
+
+    /* Password field wrapper with toggle */
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      padding-right: 48px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px;
+      min-height: unset;
+      min-width: unset;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 150ms;
+    }
+    .password-toggle:hover { color: var(--text-muted); }
+
+    .toggle-mode {
       font-size: 0.85rem;
-      padding: 10px 14px;
-      background: rgba(248,113,113,0.1);
-      border: 1px solid rgba(248,113,113,0.2);
-      border-radius: var(--r-sm);
-      display: none;
+      color: var(--text-muted);
+      text-align: center;
     }
-    .error-msg--show { display: block; }
-    .error-msg--success {
-      color: #4ADE80 !important;
-      background: rgba(74,222,128,0.1) !important;
-      border-color: rgba(74,222,128,0.25) !important;
-    }
-    .toggle-mode { font-size: 0.85rem; color: var(--text-muted); text-align: center; }
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
@@ -51,25 +87,76 @@
       margin-top: var(--sp-8);
     }
     .badge svg { opacity: 0.4; }
+
+    /* ── Mobile adjustments ──────────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: var(--sp-5) var(--sp-4);
+        border-radius: var(--r-md);
+      }
+      .page-center {
+        padding: var(--sp-3);
+        align-items: flex-start;
+        padding-top: max(var(--sp-6), env(safe-area-inset-top, 24px));
+      }
+      .login-card { max-width: 100%; }
+    }
+
+    /* ── Laptop / Desktop (> 1024px) ─────────────────────────────────────────── */
+    @media (min-width: 1024px) {
+      .login-card { max-width: 440px; }
+      .page-center {
+        background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245,197,24,0.04) 0%, transparent 70%);
+      }
+    }
   </style>
 </head>
 <body>
   <div class="page-center">
     <div class="glass login-card flex-col">
-      <div class="logo-mark">🥋</div>
+      <div class="logo-mark" role="img" aria-label="Taekwondo Scoring">🥋</div>
       <h1 class="login-title" id="page-title">Operator Login</h1>
       <p class="login-subtitle" id="page-subtitle">Sign in to score a match</p>
 
-      <div id="error-msg" class="error-msg" role="alert"></div>
+      <div id="error-msg" class="error-msg" role="alert" aria-live="polite"></div>
 
-      <form class="login-form" id="login-form" novalidate>
+      <form class="login-form" id="login-form" novalidate autocomplete="on">
         <div class="field">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="operator@club.com" required autocomplete="email" />
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="operator@club.com"
+            required
+            autocomplete="email"
+            inputmode="email"
+            spellcheck="false"
+            autocapitalize="none"
+          />
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" minlength="6" />
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+              minlength="6"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              id="pw-toggle"
+              aria-label="Show password"
+              title="Show / hide password"
+            >
+              <span id="pw-toggle-icon" aria-hidden="true">👁</span>
+            </button>
+          </div>
         </div>
         <button type="submit" class="clay clay--amber clay--lg clay--block" id="submit-btn">
           Sign In
@@ -82,12 +169,26 @@
       </p>
 
       <div class="badge" style="display:flex; justify-content:center; gap:8px;">
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e;"></span>
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e;" aria-hidden="true"></span>
         <span>Live Cloud Connected</span>
       </div>
     </div>
   </div>
 
   <script type="module" src="./pages/login/login.js"></script>
+  <script>
+    // Password visibility toggle
+    const pwToggle = document.getElementById('pw-toggle');
+    const pwInput  = document.getElementById('password');
+    const pwIcon   = document.getElementById('pw-toggle-icon');
+    if (pwToggle && pwInput) {
+      pwToggle.addEventListener('click', () => {
+        const isHidden = pwInput.type === 'password';
+        pwInput.type = isHidden ? 'text' : 'password';
+        pwIcon.textContent = isHidden ? '🙈' : '👁';
+        pwToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+      });
+    }
+  </script>
 </body>
 </html>

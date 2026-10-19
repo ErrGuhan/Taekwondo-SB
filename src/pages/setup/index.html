@@ -249,23 +249,35 @@
             </div>
           </div>
 
-          <hr class="divider" style="margin: var(--sp-2) 0;" />
+          <!-- Hidden inputs for clipboard copying -->
+          <input id="control-link" type="hidden" />
+          <input id="scoreboard-link" type="hidden" />
 
-          <div>
-            <div class="link-label link-label--red">🎮 Control Panel (Operator only)</div>
-            <div class="copy-row">
-              <input id="control-link" type="text" readonly />
-              <button class="clay clay--ghost clay--sm" id="copy-control">Copy</button>
-              <a id="open-control" href="#" target="_blank" class="clay clay--red clay--sm">Open →</a>
+          <!-- Control Panel Action Card -->
+          <div class="glass glass--sm" style="padding: var(--sp-4) var(--sp-5); border-left: 4px solid var(--red); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: #FF4D6A; display: flex; align-items: center; gap: 8px;">
+                <span>🎮</span> Control Panel
+              </div>
+              <div class="text-xs muted" style="margin-top: 2px;">Operator console for real-time scoring and timer management</div>
+            </div>
+            <div style="display: flex; gap: var(--sp-2); align-items: center;">
+              <button class="clay clay--ghost clay--sm" id="copy-control" type="button">📋 Copy Link</button>
+              <a id="open-control" href="#" target="_blank" class="clay clay--red clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Control →</a>
             </div>
           </div>
 
-          <div>
-            <div class="link-label link-label--blue">📺 Scoreboard (Public / TV)</div>
-            <div class="copy-row">
-              <input id="scoreboard-link" type="text" readonly />
-              <button class="clay clay--ghost clay--sm" id="copy-scoreboard">Copy</button>
-              <a id="open-scoreboard" href="#" target="_blank" class="clay clay--blue clay--sm">Open →</a>
+          <!-- Scoreboard Action Card -->
+          <div class="glass glass--sm" style="padding: var(--sp-4) var(--sp-5); border-left: 4px solid var(--blue); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: #5B9CF6; display: flex; align-items: center; gap: 8px;">
+                <span>📺</span> Scoreboard
+              </div>
+              <div class="text-xs muted" style="margin-top: 2px;">Public broadcast view for arena venue TVs and projectors</div>
+            </div>
+            <div style="display: flex; gap: var(--sp-2); align-items: center;">
+              <button class="clay clay--ghost clay--sm" id="copy-scoreboard" type="button">📋 Copy Link</button>
+              <a id="open-scoreboard" href="#" target="_blank" class="clay clay--blue clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Scoreboard →</a>
             </div>
           </div>
 

@@ -14,31 +14,33 @@ let timerExpiredFired = false
 
 // ── Auth + Init ───────────────────────────────────────────────────────────────
 ;(async () => {
-  matchId = new URLSearchParams(location.search).get('id')
-  if (!matchId) {
-    showMissingMatch('No match ID provided in the URL.')
+  try {
+    matchId = new URLSearchParams(location.search).get('id')
+    if (!matchId) {
+      showMissingMatch('No match ID provided in the URL.')
+      return
+    }
+
+    const session = await requireAuth('/')
+    if (!session) return
+
+    // Set scoreboard link in bottom bar
+    const sbLink = document.getElementById('scoreboard-link')
+    if (sbLink) sbLink.href = `/pages/scoreboard/?id=${matchId}`
+
+    const found = await loadMatch()
+    if (!found) return
+
+    await loadScoreEvents()
+    subscribeRealtime()
+    setupEventListeners()
+    setupKeyboardShortcuts()
+  } catch (err) {
+    console.error('[control] init error:', err)
+    toast('Error loading control panel: ' + (err.message || err), 'error')
+  } finally {
     hideLoading()
-    return
   }
-
-  const session = await requireAuth('/')
-  if (!session) return
-
-  // Set scoreboard link in bottom bar
-  const sbLink = document.getElementById('scoreboard-link')
-  if (sbLink) sbLink.href = `/pages/scoreboard/?id=${matchId}`
-
-  const found = await loadMatch()
-  if (!found) {
-    hideLoading()
-    return
-  }
-
-  await loadScoreEvents()
-  subscribeRealtime()
-  setupEventListeners()
-  setupKeyboardShortcuts()
-  hideLoading()
 })()
 
 // ── Data Fetching ─────────────────────────────────────────────────────────────
@@ -139,18 +141,18 @@ function subscribeRealtime() {
 function startTimerLoop() {
   if (stopTimer) stopTimer()
 
-  const timerEl = document.getElementById('timer-digits')
+  const timerEl = document.getElementById('timer') || document.getElementById('timer-digits')
   let lastUrgent = false
 
   stopTimer = startCountdown(
     () => match,
     (rem, isSecondBoundary) => {
-      if (isSecondBoundary) {
+      if (timerEl && isSecondBoundary) {
         timerEl.textContent = formatTime(rem)
       }
       const isUrgent = rem <= 10000 && rem > 0
-      if (isUrgent !== lastUrgent) {
-        timerEl.classList.toggle('timer-digits--urgent', isUrgent)
+      if (timerEl && isUrgent !== lastUrgent) {
+        timerEl.classList.toggle('timer-display--urgent', isUrgent)
         lastUrgent = isUrgent
       }
     },
@@ -169,49 +171,68 @@ function renderMatch() {
   if (!match) return
 
   // Header
-  document.getElementById('match-title').textContent =
-    `${match.red_name} vs ${match.blue_name}`
+  const titleEl = document.getElementById('match-title')
+  if (titleEl) titleEl.textContent = `${match.red_name} vs ${match.blue_name}`
 
-  const meta = [
-    match.match_code,
-    match.division,
-    match.gender,
-    match.weight_class,
-    `Round ${match.current_round} of ${match.total_rounds}`
-  ].filter(Boolean).join(' · ')
-  document.getElementById('match-sub').textContent = meta
+  const subEl = document.getElementById('match-sub')
+  if (subEl) {
+    const meta = [
+      match.match_code,
+      match.division,
+      match.gender,
+      match.weight_class,
+      `Round ${match.current_round} of ${match.total_rounds}`
+    ].filter(Boolean).join(' · ')
+    subEl.textContent = meta
+  }
 
   // Status chip
   const chip = document.getElementById('status-chip')
-  chip.className = `status-chip status-chip--${chipClass(match.status)}`
-  chip.textContent = match.status.replace('_', ' ')
+  if (chip) {
+    chip.className = `status-chip status-chip--${chipClass(match.status)}`
+    chip.textContent = match.status.replace('_', ' ')
+  }
 
   // Athletes
-  document.getElementById('red-name').textContent     = match.red_name
-  document.getElementById('red-country').textContent  = match.red_country ? `(${match.red_country})` : ''
-  document.getElementById('blue-name').textContent    = match.blue_name
-  document.getElementById('blue-country').textContent = match.blue_country ? `(${match.blue_country})` : ''
+  const redNameEl = document.getElementById('red-name')
+  if (redNameEl) redNameEl.textContent = match.red_name
+  const redCountryEl = document.getElementById('red-country')
+  if (redCountryEl) redCountryEl.textContent = match.red_country ? `(${match.red_country})` : ''
+
+  const blueNameEl = document.getElementById('blue-name')
+  if (blueNameEl) blueNameEl.textContent = match.blue_name
+  const blueCountryEl = document.getElementById('blue-country')
+  if (blueCountryEl) blueCountryEl.textContent = match.blue_country ? `(${match.blue_country})` : ''
 
   // Gam-jeom
   renderGjDots('red',  match.red_gam_jeom  ?? 0, 5)
   renderGjDots('blue', match.blue_gam_jeom ?? 0, 5)
-  document.getElementById('red-gj-count').textContent  = match.red_gam_jeom  ?? 0
-  document.getElementById('blue-gj-count').textContent = match.blue_gam_jeom ?? 0
+  const redGjCount = document.getElementById('red-gj-count')
+  if (redGjCount) redGjCount.textContent = match.red_gam_jeom ?? 0
+  const blueGjCount = document.getElementById('blue-gj-count')
+  if (blueGjCount) blueGjCount.textContent = match.blue_gam_jeom ?? 0
 
   // VR quotas
-  document.getElementById('red-vr-val').textContent  = match.red_vr_quota  ?? 1
-  document.getElementById('blue-vr-val').textContent = match.blue_vr_quota ?? 1
+  const redVr = document.getElementById('red-vr-val')
+  if (redVr) redVr.textContent = match.red_vr_quota ?? 1
+  const blueVr = document.getElementById('blue-vr-val')
+  if (blueVr) blueVr.textContent = match.blue_vr_quota ?? 1
 
-  // Center column
-  document.getElementById('current-round-display').textContent = match.current_round ?? 1
-  document.getElementById('total-rounds-display').textContent   = match.total_rounds  ?? 3
+  // Center column round badge
+  const roundBadge = document.getElementById('round-badge')
+  if (roundBadge) {
+    roundBadge.textContent = `Round ${match.current_round ?? 1} / ${match.total_rounds ?? 3}`
+  }
 
   // Timer controls active state
   const isRunning  = match.timer_status === 'running'
   const isFinished = match.status === 'finished'
 
-  document.getElementById('start-btn').disabled = isRunning || isFinished
-  document.getElementById('pause-btn').disabled = !isRunning || isFinished
+  const startBtn = document.getElementById('start-btn')
+  if (startBtn) startBtn.disabled = isRunning || isFinished
+
+  const pauseBtn = document.getElementById('pause-btn')
+  if (pauseBtn) pauseBtn.disabled = !isRunning || isFinished
 
   // Scoring buttons — disable when finished
   const allBtns = document.querySelectorAll('.score-btn, .gj-btn, #next-round-btn')

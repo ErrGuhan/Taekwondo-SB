@@ -15,11 +15,19 @@ const matchId    = new URLSearchParams(location.search).get('id')
 
   if (!matchId) {
     showWaitingScreen('No match ID specified in URL. Please open a valid scoreboard link.')
+    hideLoading()
     return
   }
 
-  await loadAll()
-  subscribeRealtime()
+  try {
+    await loadAll()
+    subscribeRealtime()
+  } catch (err) {
+    console.error('[scoreboard] init error:', err)
+    showWaitingScreen(err.message || 'Error loading scoreboard data.')
+  } finally {
+    hideLoading()
+  }
 })()
 
 // ── Data Loading ──────────────────────────────────────────────────────────────
@@ -127,17 +135,17 @@ function startTimerLoop() {
   stopTimer = startCountdown(
     () => match,
     (rem, isSecondBoundary) => {
-      if (isSecondBoundary) {
+      if (timerEl && isSecondBoundary) {
         timerEl.textContent = formatTime(rem)
       }
       const isUrgent = rem <= 10000 && rem > 0
-      if (isUrgent !== lastUrgent) {
+      if (timerEl && isUrgent !== lastUrgent) {
         timerEl.classList.toggle('sb-timer--urgent', isUrgent)
         lastUrgent = isUrgent
       }
     },
     () => {
-      timerEl.textContent = '00:00'
+      if (timerEl) timerEl.textContent = '00:00'
     }
   )
 }
@@ -154,19 +162,30 @@ function renderAll() {
 }
 
 function renderMetadata() {
-  document.getElementById('sb-red-name').textContent     = match.red_name || 'Hong'
-  document.getElementById('sb-red-country').textContent  = match.red_country ? match.red_country : ''
+  const redName = document.getElementById('sb-red-name')
+  if (redName) redName.textContent = match.red_name || 'Hong'
 
-  document.getElementById('sb-blue-name').textContent    = match.blue_name || 'Chung'
-  document.getElementById('sb-blue-country').textContent = match.blue_country ? match.blue_country : ''
+  const redCountry = document.getElementById('sb-red-country')
+  if (redCountry) redCountry.textContent = match.red_country ? match.red_country : ''
 
-  document.getElementById('sb-match-code').textContent   = match.match_code || 'MATCH'
+  const blueName = document.getElementById('sb-blue-name')
+  if (blueName) blueName.textContent = match.blue_name || 'Chung'
 
-  document.getElementById('sb-cur-round').textContent    = match.current_round ?? 1
-  document.getElementById('sb-total-rounds').textContent  = match.total_rounds ?? 3
+  const blueCountry = document.getElementById('sb-blue-country')
+  if (blueCountry) blueCountry.textContent = match.blue_country ? match.blue_country : ''
+
+  const matchCode = document.getElementById('sb-match-code')
+  if (matchCode) matchCode.textContent = match.match_code || 'MATCH'
+
+  const curRound = document.getElementById('sb-cur-round')
+  if (curRound) curRound.textContent = match.current_round ?? 1
+
+  const totalRounds = document.getElementById('sb-total-rounds')
+  if (totalRounds) totalRounds.textContent = match.total_rounds ?? 3
 
   const meta = [match.division, match.gender, match.weight_class].filter(Boolean).join(' · ')
-  document.getElementById('sb-event-sub').textContent    = meta || 'WT Taekwondo Scoring'
+  const eventSub = document.getElementById('sb-event-sub')
+  if (eventSub) eventSub.textContent = meta || 'WT Taekwondo Scoring'
 }
 
 function renderScores() {
@@ -176,6 +195,8 @@ function renderScores() {
 
   const redEl  = document.getElementById('sb-red-score')
   const blueEl = document.getElementById('sb-blue-score')
+
+  if (!redEl || !blueEl) return
 
   const prevRed  = redEl.textContent
   const prevBlue = blueEl.textContent
@@ -205,8 +226,11 @@ function animateScore(el) {
 
 function renderGamJeom() {
   if (!match) return
-  document.getElementById('sb-red-gj-count').textContent  = match.red_gam_jeom ?? 0
-  document.getElementById('sb-blue-gj-count').textContent = match.blue_gam_jeom ?? 0
+  const redGj = document.getElementById('sb-red-gj-count')
+  if (redGj) redGj.textContent = match.red_gam_jeom ?? 0
+
+  const blueGj = document.getElementById('sb-blue-gj-count')
+  if (blueGj) blueGj.textContent = match.blue_gam_jeom ?? 0
 }
 
 function renderBadges() {
@@ -248,6 +272,7 @@ function renderCornerChips(containerId, corner, total, curRound) {
 
   for (let r = 1; r <= total; r++) {
     const chip = container.children[r - 1]
+    if (!chip) continue
     const rr = roundResults.find(res => res.round_number === r)
 
     chip.classList.toggle('sb-chip--active', r === curRound && match.status !== 'finished')
@@ -267,6 +292,8 @@ function renderStatus() {
   const pill = document.getElementById('sb-status-pill')
   const text = document.getElementById('sb-status-text')
   const dot  = document.getElementById('sb-status-dot')
+
+  if (!pill || !text || !dot) return
 
   const s = match.status || 'setup'
   pill.className = `sb-status-pill sb-status-pill--${s}`
@@ -296,6 +323,14 @@ function showWaitingScreen(message) {
 function hideWaitingScreen() {
   const overlay = document.getElementById('waiting-overlay')
   if (overlay) overlay.style.display = 'none'
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading')
+  if (el) {
+    el.classList.add('loading-overlay--hidden')
+    setTimeout(() => el.remove(), 300)
+  }
 }
 
 // ── Fullscreen Toggle ─────────────────────────────────────────────────────────

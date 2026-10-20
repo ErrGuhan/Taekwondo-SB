@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>500 — Arena Signal Disconnected | Taekwondo Scoring</title>
+  <meta name="description" content="Court server or realtime database synchronization is currently unavailable." />
+  <!-- Security meta tags -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="/styles/reset.css" />
+  <link rel="stylesheet" href="/styles/theme.css" />
+</head>
+<body>
+  <main class="error-page error-page--500" id="main-content">
+    <div class="glass error-card flex-col">
+      <div class="error-referee-emblem error-referee-emblem--500" role="img" aria-label="Arena signal disconnection alert">
+        📡
+      </div>
+
+      <div class="error-status-code" aria-hidden="true">500</div>
+      <h1 class="error-title" id="error-title">Arena Signal Disconnected</h1>
+      <p class="error-desc" id="error-desc">
+        Realtime court synchronization was interrupted or the database service could not be reached.
+      </p>
+
+      <div class="error-actions">
+        <button type="button" class="clay clay--amber clay--lg clay--block" id="action-retry">
+          🔄 Retry Connection
+        </button>
+        <div class="error-actions-grid">
+          <a href="/pages/control/?id=demo" class="clay clay--ghost" id="action-demo">
+            ⚡ Offline / Demo Mode
+          </a>
+          <a href="/pages/setup/" class="clay clay--ghost" id="action-setup">
+            🥋 Match Setup
+          </a>
+        </div>
+        <a href="/" class="clay clay--ghost" id="action-home">
+          🏠 Return to Portal
+        </a>
+      </div>
+
+      <div class="diagnostic-panel">
+        <button type="button" class="diagnostic-toggle" id="diag-toggle" aria-expanded="false" aria-controls="diag-box">
+          <span id="diag-arrow" aria-hidden="true">▶</span>
+          <span>Technical Diagnostics</span>
+        </button>
+        <div class="diagnostic-box" id="diag-box" role="region" aria-label="Technical diagnostic details">
+          <div id="diag-content">Loading diagnostics…</div>
+          <button type="button" class="notif-action-btn diagnostic-copy-btn" id="copy-diag-btn">
+            📋 Copy Diagnostic Info
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/lib/notification-drawer.js"></script>
+  <script type="module">
+    import { addNotification } from '/lib/notifications.js'
+
+    const titleEl   = document.getElementById('error-title')
+    const descEl    = document.getElementById('error-desc')
+    const diagBox   = document.getElementById('diag-box')
+    const diagToggle= document.getElementById('diag-toggle')
+    const diagArrow = document.getElementById('diag-arrow')
+    const diagContent = document.getElementById('diag-content')
+    const copyBtn   = document.getElementById('copy-diag-btn')
+    const retryBtn  = document.getElementById('action-retry')
+
+    // Context analysis
+    const params = new URLSearchParams(window.location.search)
+    const reason = params.get('reason') || 'server_error'
+    const customMsg = params.get('msg')
+    const returnUrl = params.get('return') || document.referrer || '/'
+
+    if (reason === 'network_offline') {
+      titleEl.textContent = 'Arena Network Offline'
+      descEl.textContent = 'Your device appears to be disconnected from the internet. Scoring can continue in local Demo Mode.'
+    } else if (reason === 'db_timeout' || reason === 'supabase_error') {
+      titleEl.textContent = 'Cloud Database Unreachable'
+      descEl.textContent = customMsg || 'Supabase service did not respond. Check your internet connection or use Demo Mode.'
+    } else if (customMsg) {
+      descEl.textContent = customMsg
+    }
+
+    const diagnostics = {
+      code: 500,
+      reason,
+      message: customMsg || 'Internal court sync error',
+      returnUrl,
+      timestamp: new Date().toISOString(),
+      onlineStatus: navigator.onLine ? 'online' : 'offline',
+      userAgent: navigator.userAgent
+    }
+
+    diagContent.textContent = JSON.stringify(diagnostics, null, 2)
+
+    diagToggle.addEventListener('click', () => {
+      const isOpen = diagBox.classList.toggle('diagnostic-box--open')
+      diagToggle.setAttribute('aria-expanded', String(isOpen))
+      diagArrow.textContent = isOpen ? '▼' : '▶'
+    })
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(diagnostics, null, 2))
+        copyBtn.textContent = '✓ Copied!'
+        setTimeout(() => { copyBtn.textContent = '📋 Copy Diagnostic Info' }, 2000)
+      } catch (e) {
+        copyBtn.textContent = 'Copy failed'
+      }
+    })
+
+    retryBtn.addEventListener('click', () => {
+      retryBtn.disabled = true
+      retryBtn.textContent = 'Testing Connection…'
+      setTimeout(() => {
+        if (navigator.onLine) {
+          window.location.href = returnUrl
+        } else {
+          retryBtn.disabled = false
+          retryBtn.textContent = '⚠️ Still Offline — Retry Again'
+        }
+      }, 800)
+    })
+
+    // Record error in notifications store
+    try {
+      addNotification({
+        title: '500 Server/Sync Error',
+        message: customMsg || `Arena connection error (${reason})`,
+        type: 'error',
+        category: 'alert'
+      })
+    } catch (_) {}
+  </script>
+</body>
+</html>

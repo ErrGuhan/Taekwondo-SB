@@ -23,6 +23,8 @@ const PAGES = [
   { name: 'Setup',      path: '/pages/setup/?demo=1' },
   { name: 'Control',    path: '/pages/control/?id=demo' },
   { name: 'Scoreboard', path: '/pages/scoreboard/?id=demo' },
+  { name: '404 Error',  path: '/404.html' },
+  { name: '500 Error',  path: '/500.html' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -382,5 +384,104 @@ test('[Control] bottom bar buttons are visible and have consistent heights', asy
   const resetH = await resetBtn.evaluate(el => el.getBoundingClientRect().height);
   expect(nextH).toBeGreaterThanOrEqual(40);
   expect(resetH).toBeGreaterThanOrEqual(40);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. CUSTOM ERROR PAGES (404 & 500)
+// ─────────────────────────────────────────────────────────────────────────────
+test('[Error 404] action buttons meet 44px touch-target height on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/404.html', { waitUntil: 'domcontentloaded' });
+
+  const setupBtn = page.locator('#action-setup');
+  const demoBtn  = page.locator('#action-demo');
+  const homeBtn  = page.locator('#action-home');
+  const backBtn  = page.locator('#action-back');
+
+  await expect(setupBtn).toBeVisible();
+  await expect(demoBtn).toBeVisible();
+  await expect(homeBtn).toBeVisible();
+  await expect(backBtn).toBeVisible();
+
+  const hSetup = await setupBtn.evaluate(el => el.getBoundingClientRect().height);
+  const hDemo  = await demoBtn.evaluate(el => el.getBoundingClientRect().height);
+  expect(hSetup, `Setup button height ${hSetup}px < 44px`).toBeGreaterThanOrEqual(44);
+  expect(hDemo,  `Demo button height ${hDemo}px < 44px`).toBeGreaterThanOrEqual(44);
+});
+
+test('[Error 404] technical diagnostics accordion expands and collapses', async ({ page }) => {
+  await page.goto('/404.html', { waitUntil: 'domcontentloaded' });
+  const toggle = page.locator('#diag-toggle');
+  const box    = page.locator('#diag-box');
+
+  await expect(box).not.toBeVisible();
+  await toggle.click();
+  await expect(box).toBeVisible();
+  await toggle.click();
+  await expect(box).not.toBeVisible();
+});
+
+test('[Error 500] retry and demo mode buttons are interactive', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/500.html?reason=network_offline', { waitUntil: 'domcontentloaded' });
+
+  const retryBtn = page.locator('#action-retry');
+  const demoBtn  = page.locator('#action-demo');
+
+  await expect(retryBtn).toBeVisible();
+  await expect(demoBtn).toBeVisible();
+
+  const title = await page.locator('#error-title').textContent();
+  expect(title).toContain('Arena Network Offline');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. IN-APP NOTIFICATION DRAWER & FLOATING BELL
+// ─────────────────────────────────────────────────────────────────────────────
+for (const { name, path } of PAGES) {
+  test(`[Notification] ${name} — floating bell button is present`, async ({ page }) => {
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
+    const bell = page.locator('#notif-bell-btn');
+    await expect(bell).toBeVisible();
+  });
+}
+
+test('[Notification] scoreboard floating bell has broadcast subtle styling', async ({ page }) => {
+  await page.goto('/pages/scoreboard/?id=demo', { waitUntil: 'domcontentloaded' });
+  const bell = page.locator('#notif-bell-btn');
+  const classes = await bell.getAttribute('class');
+  expect(classes).toContain('bell--broadcast');
+});
+
+test('[Notification] clicking bell opens drawer and pressing Esc closes it', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const bell = page.locator('#notif-bell-btn');
+  const drawer = page.locator('#notif-drawer');
+
+  // Initially closed
+  await expect(drawer).not.toHaveClass(/notif-drawer--open/);
+
+  // Click to open
+  await bell.click();
+  await expect(drawer).toHaveClass(/notif-drawer--open/);
+
+  // Press Escape to close
+  await page.keyboard.press('Escape');
+  await expect(drawer).not.toHaveClass(/notif-drawer--open/);
+});
+
+test('[Notification] category filter tabs toggle active states', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const bell = page.locator('#notif-bell-btn');
+  await bell.click();
+
+  const matchTab = page.locator('.notif-tab[data-filter="match"]');
+  const allTab   = page.locator('.notif-tab[data-filter="all"]');
+
+  await matchTab.click();
+  await expect(matchTab).toHaveClass(/notif-tab--active/);
+  await expect(allTab).not.toHaveClass(/notif-tab--active/);
 });
 

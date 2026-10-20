@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>404 — Out of Bounds | Taekwondo Scoring</title>
+  <meta name="description" content="Contest mat boundary exceeded — the requested page or match does not exist." />
+  <!-- Security meta tags -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="/styles/reset.css" />
+  <link rel="stylesheet" href="/styles/theme.css" />
+</head>
+<body>
+  <main class="error-page" id="main-content">
+    <div class="glass error-card flex-col">
+      <div class="error-referee-emblem error-referee-emblem--404" role="img" aria-label="Referee Gam-jeom penalty gesture">
+        🟨
+      </div>
+
+      <div class="error-status-code" aria-hidden="true">404</div>
+      <h1 class="error-title" id="error-title">Gam-Jeom! Route Out of Bounds</h1>
+      <p class="error-desc" id="error-desc">
+        The contestant or path you were looking for stepped outside the contest boundary line.
+      </p>
+
+      <div class="error-actions">
+        <a href="/pages/setup/" class="clay clay--amber clay--lg clay--block" id="action-setup">
+          🥋 Create New Match
+        </a>
+        <div class="error-actions-grid">
+          <a href="/pages/control/?id=demo" class="clay clay--ghost" id="action-demo">
+            ⚡ Demo Match
+          </a>
+          <a href="/" class="clay clay--ghost" id="action-home">
+            🏠 Operator Login
+          </a>
+        </div>
+        <button type="button" class="clay clay--ghost" id="action-back">
+          ↩ Return to Previous Page
+        </button>
+      </div>
+
+      <div class="diagnostic-panel">
+        <button type="button" class="diagnostic-toggle" id="diag-toggle" aria-expanded="false" aria-controls="diag-box">
+          <span id="diag-arrow" aria-hidden="true">▶</span>
+          <span>Technical Diagnostics</span>
+        </button>
+        <div class="diagnostic-box" id="diag-box" role="region" aria-label="Technical diagnostic details">
+          <div id="diag-content">Loading diagnostics…</div>
+          <button type="button" class="notif-action-btn diagnostic-copy-btn" id="copy-diag-btn">
+            📋 Copy Diagnostic Info
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/lib/notification-drawer.js"></script>
+  <script type="module">
+    import { addNotification } from '/lib/notifications.js'
+
+    const titleEl   = document.getElementById('error-title')
+    const descEl    = document.getElementById('error-desc')
+    const diagBox   = document.getElementById('diag-box')
+    const diagToggle= document.getElementById('diag-toggle')
+    const diagArrow = document.getElementById('diag-arrow')
+    const diagContent = document.getElementById('diag-content')
+    const copyBtn   = document.getElementById('copy-diag-btn')
+    const backBtn   = document.getElementById('action-back')
+
+    // Context detection: did they search for a match or general page?
+    const currentUrl = window.location.href
+    const params = new URLSearchParams(window.location.search)
+    const matchId = params.get('id')
+    const isMatchRoute = currentUrl.includes('control') || currentUrl.includes('scoreboard') || !!matchId
+
+    if (isMatchRoute) {
+      titleEl.textContent = 'Match Not Found or Expired'
+      descEl.textContent = matchId
+        ? `No active match records found for ID "${matchId}". It may have finished, been deleted, or the link is invalid.`
+        : 'The match link is missing a valid match identifier.'
+    }
+
+    // Diagnostics content
+    const diagnostics = {
+      code: 404,
+      reason: isMatchRoute ? 'match_not_found' : 'route_not_found',
+      url: currentUrl,
+      path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent
+    }
+
+    diagContent.textContent = JSON.stringify(diagnostics, null, 2)
+
+    // Toggle diagnostics
+    diagToggle.addEventListener('click', () => {
+      const isOpen = diagBox.classList.toggle('diagnostic-box--open')
+      diagToggle.setAttribute('aria-expanded', String(isOpen))
+      diagArrow.textContent = isOpen ? '▼' : '▶'
+    })
+
+    // Copy diagnostics
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(diagnostics, null, 2))
+        copyBtn.textContent = '✓ Copied!'
+        setTimeout(() => { copyBtn.textContent = '📋 Copy Diagnostic Info' }, 2000)
+      } catch (e) {
+        copyBtn.textContent = 'Copy failed'
+      }
+    })
+
+    // Back button
+    backBtn.addEventListener('click', () => {
+      if (window.history.length > 1) {
+        window.history.back()
+      } else {
+        window.location.href = '/'
+      }
+    })
+
+    // Record error in notifications store
+    try {
+      addNotification({
+        title: isMatchRoute ? 'Match 404' : 'Route 404',
+        message: `404 encountered on ${window.location.pathname}`,
+        type: 'warning',
+        category: 'alert'
+      })
+    } catch (_) {}
+  </script>
+</body>
+</html>

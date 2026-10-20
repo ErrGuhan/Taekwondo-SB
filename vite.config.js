@@ -10,10 +10,12 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main:       resolve(import.meta.dirname, 'src/index.html'),
-        setup:      resolve(import.meta.dirname, 'src/pages/setup/index.html'),
-        control:    resolve(import.meta.dirname, 'src/pages/control/index.html'),
-        scoreboard: resolve(import.meta.dirname, 'src/pages/scoreboard/index.html'),
+        main:        resolve(import.meta.dirname, 'src/index.html'),
+        setup:       resolve(import.meta.dirname, 'src/pages/setup/index.html'),
+        control:     resolve(import.meta.dirname, 'src/pages/control/index.html'),
+        scoreboard:  resolve(import.meta.dirname, 'src/pages/scoreboard/index.html'),
+        notFound:    resolve(import.meta.dirname, 'src/404.html'),
+        serverError: resolve(import.meta.dirname, 'src/500.html'),
       },
       output: {
         manualChunks(id) {

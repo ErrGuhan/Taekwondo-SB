@@ -413,6 +413,7 @@ function showFinishedOverlay() {
 }
 
 function showMissingMatch(reason) {
+  hideLoading()
   const container = document.querySelector('.score-area')
   if (container) {
     const safeReason = String(reason || '').replace(/[<>"'&]/g, c =>
@@ -422,8 +423,10 @@ function showMissingMatch(reason) {
         <div style="font-size: 3rem; margin-bottom: var(--sp-4);">🥋</div>
         <h2 class="text-2xl font-bold" style="margin-bottom: var(--sp-2);">Active Match Not Found</h2>
         <p class="muted" style="margin-bottom: var(--sp-6); font-size: 0.95rem;">${safeReason}</p>
-        <div style="display:flex; justify-content:center; gap: var(--sp-3);">
+        <div style="display:flex; justify-content:center; gap: var(--sp-3); flex-wrap:wrap;">
           <a href="/pages/setup/" class="clay clay--amber clay--lg" style="text-decoration:none;">Go to Match Setup →</a>
+          <a href="/pages/control/?id=demo" class="clay clay--ghost" style="text-decoration:none;">Launch Demo Match</a>
+          <a href="/404.html?id=${encodeURIComponent(matchId || '')}" class="clay clay--ghost" style="text-decoration:none;">View Error Details</a>
         </div>
       </div>
     `

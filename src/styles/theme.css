@@ -84,6 +84,7 @@ body {
   font-family:     var(--font-body);
   font-weight:     700;
   letter-spacing:  0.02em;
+  text-decoration: none;
   border-radius:   var(--r-md);
   padding:         10px 20px;
   transition:      box-shadow 80ms ease, transform 80ms ease, opacity 80ms ease;
@@ -579,8 +580,8 @@ body {
 /* ── Floating Notification Bell & Badge ───────────────────────────────────── */
 .notif-bell {
   position: fixed;
-  bottom: 24px;
-  left: 24px;
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  left: max(20px, env(safe-area-inset-left, 20px));
   z-index: 1050;
   width: 48px;
   height: 48px;
@@ -679,6 +680,8 @@ body {
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .notif-drawer--open {
   transform: translateX(0);
@@ -749,6 +752,13 @@ body {
   padding: var(--sp-3) var(--sp-5);
   border-bottom: 1px solid var(--glass-border);
   background: rgba(0, 0, 0, 0.15);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.notif-tabs::-webkit-scrollbar {
+  display: none;
 }
 .notif-tab {
   background: transparent;
@@ -760,6 +770,7 @@ body {
   color: var(--text-muted);
   cursor: pointer;
   transition: background 150ms, color 150ms;
+  flex-shrink: 0;
 }
 .notif-tab:hover {
   color: var(--text);
@@ -884,6 +895,10 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--sp-5);
+  padding-top: max(var(--sp-5), env(safe-area-inset-top));
+  padding-bottom: max(var(--sp-5), env(safe-area-inset-bottom));
+  padding-left: max(var(--sp-5), env(safe-area-inset-left));
+  padding-right: max(var(--sp-5), env(safe-area-inset-right));
   background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(200, 30, 58, 0.08) 0%, transparent 70%), var(--bg);
 }
 .error-page--500 {
@@ -959,6 +974,13 @@ body {
   }
   .notif-drawer {
     max-width: 100%;
+    border-radius: 0;
+  }
+  .notif-bell {
+    width: 44px;
+    height: 44px;
+    bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    left: max(16px, env(safe-area-inset-left, 16px));
   }
 }
 

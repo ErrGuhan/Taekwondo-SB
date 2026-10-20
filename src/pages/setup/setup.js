@@ -48,6 +48,19 @@ form.addEventListener('submit', async (e) => {
   initBtn.disabled = true
   initBtn.textContent = 'Creating match…'
 
+  const isDemo = new URLSearchParams(window.location.search).get('demo') === '1'
+  if (isDemo) {
+    const mockMatch = {
+      id: 'demo-' + Date.now(),
+      ...payload,
+      created_at: new Date().toISOString()
+    }
+    initBtn.disabled = false
+    initBtn.textContent = '⚡ Initialize Match'
+    showLinks(mockMatch)
+    return
+  }
+
   const res = await supabase.from('matches').insert(payload).select().single()
   const data = res.data
   const error = res.error

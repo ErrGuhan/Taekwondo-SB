@@ -20,10 +20,11 @@ export default defineConfig({
       name: 'Desktop Chrome',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'Desktop Firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // Desktop Firefox can be enabled when firefox browser binary is installed
+    // {
+    //   name: 'Desktop Firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
     // ── Laptop ───────────────────────────────────────────────────────────────
     {
       name: 'Laptop 1280',
@@ -35,7 +36,10 @@ export default defineConfig({
     // ── Tablet ───────────────────────────────────────────────────────────────
     {
       name: 'iPad Pro',
-      use: { ...devices['iPad Pro'] },
+      use: {
+        ...devices['iPad Pro'],
+        defaultBrowserType: 'chromium',
+      },
     },
     {
       name: 'Tablet 768',
@@ -48,7 +52,10 @@ export default defineConfig({
     // ── Mobile ───────────────────────────────────────────────────────────────
     {
       name: 'iPhone 14',
-      use: { ...devices['iPhone 14'] },
+      use: {
+        ...devices['iPhone 14'],
+        defaultBrowserType: 'chromium',
+      },
     },
     {
       name: 'Galaxy S21',

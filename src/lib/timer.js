@@ -53,23 +53,30 @@ export function renderTimerElement(el, ms) {
   const mStr   = String(mins).padStart(2, '0')
   const sStr   = String(secs).padStart(2, '0')
 
-  const d0 = el.querySelector('[data-td="m0"]')
-  const d1 = el.querySelector('[data-td="m1"]')
-  const d2 = el.querySelector('[data-td="s0"]')
-  const d3 = el.querySelector('[data-td="s1"]')
+  let cache = el._timerDigits
+  if (!cache || !cache.d0 || !cache.d1 || !cache.d2 || !cache.d3) {
+    let d0 = el.querySelector('[data-td="m0"]')
+    let d1 = el.querySelector('[data-td="m1"]')
+    let d2 = el.querySelector('[data-td="s0"]')
+    let d3 = el.querySelector('[data-td="s1"]')
 
-  if (!d0 || !d1 || !d2 || !d3) {
-    el.classList.add('timer-digits')
-    el.innerHTML = `
-      <span class="timer-digit" data-td="m0">${mStr[0]}</span><span class="timer-digit" data-td="m1">${mStr[1]}</span><span class="timer-colon">:</span><span class="timer-digit" data-td="s0">${sStr[0]}</span><span class="timer-digit" data-td="s1">${sStr[1]}</span>
-    `
-    return
+    if (!d0 || !d1 || !d2 || !d3) {
+      el.classList.add('timer-digits')
+      el.innerHTML = `
+        <span class="timer-digit" data-td="m0">${mStr[0]}</span><span class="timer-digit" data-td="m1">${mStr[1]}</span><span class="timer-colon">:</span><span class="timer-digit" data-td="s0">${sStr[0]}</span><span class="timer-digit" data-td="s1">${sStr[1]}</span>
+      `
+      d0 = el.querySelector('[data-td="m0"]')
+      d1 = el.querySelector('[data-td="m1"]')
+      d2 = el.querySelector('[data-td="s0"]')
+      d3 = el.querySelector('[data-td="s1"]')
+    }
+    cache = el._timerDigits = { d0, d1, d2, d3 }
   }
 
-  if (d0.textContent !== mStr[0]) d0.textContent = mStr[0]
-  if (d1.textContent !== mStr[1]) d1.textContent = mStr[1]
-  if (d2.textContent !== sStr[0]) d2.textContent = sStr[0]
-  if (d3.textContent !== sStr[1]) d3.textContent = sStr[1]
+  if (cache.d0 && cache.d0.textContent !== mStr[0]) cache.d0.textContent = mStr[0]
+  if (cache.d1 && cache.d1.textContent !== mStr[1]) cache.d1.textContent = mStr[1]
+  if (cache.d2 && cache.d2.textContent !== sStr[0]) cache.d2.textContent = sStr[0]
+  if (cache.d3 && cache.d3.textContent !== sStr[1]) cache.d3.textContent = sStr[1]
 }
 
 /**
@@ -82,19 +89,24 @@ export function renderTimerElement(el, ms) {
 export function renderScoreElement(el, score) {
   if (!el) return
   const str = String(score).padStart(2, '0')
-  const d0 = el.querySelector('[data-sd="0"]')
-  const d1 = el.querySelector('[data-sd="1"]')
+  let cache = el._scoreDigits
+  if (!cache || !cache.d0 || !cache.d1) {
+    let d0 = el.querySelector('[data-sd="0"]')
+    let d1 = el.querySelector('[data-sd="1"]')
 
-  if (!d0 || !d1) {
-    el.classList.add('score-digits')
-    el.innerHTML = `
-      <span class="score-digit" data-sd="0">${str[0]}</span><span class="score-digit" data-sd="1">${str[1]}</span>
-    `
-    return
+    if (!d0 || !d1) {
+      el.classList.add('score-digits')
+      el.innerHTML = `
+        <span class="score-digit" data-sd="0">${str[0]}</span><span class="score-digit" data-sd="1">${str[1]}</span>
+      `
+      d0 = el.querySelector('[data-sd="0"]')
+      d1 = el.querySelector('[data-sd="1"]')
+    }
+    cache = el._scoreDigits = { d0, d1 }
   }
 
-  if (d0.textContent !== str[0]) d0.textContent = str[0]
-  if (d1.textContent !== str[1]) d1.textContent = str[1]
+  if (cache.d0 && cache.d0.textContent !== str[0]) cache.d0.textContent = str[0]
+  if (cache.d1 && cache.d1.textContent !== str[1]) cache.d1.textContent = str[1]
 }
 
 /**

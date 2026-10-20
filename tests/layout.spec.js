@@ -485,3 +485,82 @@ test('[Notification] category filter tabs toggle active states', async ({ page }
   await expect(allTab).not.toHaveClass(/notif-tab--active/);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. ADVANCED DEVICE-SPECIFIC ALIGNMENT & ERGONOMICS
+// ─────────────────────────────────────────────────────────────────────────────
+test('[Control] bottom bar adopts 2-column grid on mobile (375px)', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/pages/control/?id=demo', { waitUntil: 'domcontentloaded' });
+
+  const bottomBar = page.locator('.bottom-bar');
+  const display = await bottomBar.evaluate(el => window.getComputedStyle(el).display);
+  expect(display).toBe('grid');
+
+  const nextBtn = page.locator('#next-round-btn');
+  const resetBtn = page.locator('#reset-btn');
+  const sbLink   = page.locator('#scoreboard-link');
+
+  const nextBox = await nextBtn.boundingBox();
+  const resetBox = await resetBtn.boundingBox();
+  const sbBox = await sbLink.boundingBox();
+
+  // Next and Reset should be on same horizontal row (y coordinates very close)
+  expect(Math.abs(nextBox.y - resetBox.y)).toBeLessThanOrEqual(5);
+
+  // Scoreboard link should span below them
+  expect(sbBox.y).toBeGreaterThan(nextBox.y + 10);
+  expect(sbBox.width).toBeGreaterThan(300);
+});
+
+test('[Control] laptop compact viewport (1280x800) fits without horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/pages/control/?id=demo', { waitUntil: 'domcontentloaded' });
+
+  const ok = await noHorizontalScroll(page);
+  expect(ok).toBe(true);
+
+  // Critical operational controls must be visible on the screen
+  await expect(page.locator('#start-btn')).toBeVisible();
+  await expect(page.locator('#red-score')).toBeVisible();
+  await expect(page.locator('#blue-score')).toBeVisible();
+  await expect(page.locator('#next-round-btn')).toBeVisible();
+});
+
+test('[Setup] action card buttons expand on mobile viewport (375px)', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/pages/setup/?demo=1', { waitUntil: 'domcontentloaded' });
+
+  // Fill in form and submit to reveal links section
+  await page.fill('#red-name', 'K. Lee');
+  await page.fill('#blue-name', 'M. Park');
+  await page.click('#init-btn');
+
+  const copyBtn = page.locator('#copy-control');
+  const openBtn = page.locator('#open-control');
+
+  await expect(copyBtn).toBeVisible();
+  await expect(openBtn).toBeVisible();
+
+  const copyBox = await copyBtn.boundingBox();
+  const openBox = await openBtn.boundingBox();
+
+  // Both buttons should have expanded to roughly equal width
+  expect(copyBox.width).toBeGreaterThan(120);
+  expect(openBox.width).toBeGreaterThan(120);
+  expect(Math.abs(copyBox.width - openBox.width)).toBeLessThanOrEqual(30);
+});
+
+test('[Scoreboard] 4K large display layout scales fonts and retains layout', async ({ page }) => {
+  await page.setViewportSize({ width: 2560, height: 1440 });
+  await page.goto('/pages/scoreboard/?id=demo', { waitUntil: 'domcontentloaded' });
+
+  const ok = await noHorizontalScroll(page);
+  expect(ok).toBe(true);
+
+  const scoreFontSize = await page.locator('#sb-red-score').evaluate(
+    el => parseFloat(window.getComputedStyle(el).fontSize)
+  );
+  // On 4K screens (>=2560px), font size scales up to >= 180px for arena visibility
+  expect(scoreFontSize).toBeGreaterThanOrEqual(180);
+});
+

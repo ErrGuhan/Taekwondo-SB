@@ -479,6 +479,25 @@
       .sb-timer  { font-size: clamp(32px, 5.5vw, 64px); }
     }
 
+    /* ── 4K / Arena Projectors & Jumbotrons (>= 2560px) ─────────────────────── */
+    @media (min-width: 2560px) {
+      .sb-score { font-size: clamp(180px, 14vw, 320px); }
+      .sb-timer { font-size: clamp(100px, 8vw, 180px); }
+      .sb-name  { font-size: clamp(48px, 3.5vw, 72px); }
+      .sb-center {
+        flex: 0 0 clamp(400px, 22vw, 550px);
+        width: clamp(400px, 22vw, 550px);
+        min-width: clamp(400px, 22vw, 550px);
+        max-width: clamp(400px, 22vw, 550px);
+      }
+      .sb-country-badge { font-size: 24px; padding: 8px 20px; }
+      .sb-gj-label { font-size: 18px; }
+      .sb-gj-num { font-size: 48px; }
+      .sb-match-code { font-size: 36px; }
+      .sb-round-val { font-size: 48px; }
+      .sb-status-pill { font-size: 18px; padding: 10px 24px; }
+    }
+
     /* ── TV / Large display (> 1600px) ────────────────────────────────────── */
     @media (min-width: 1600px) {
       .sb-center {

@@ -13,7 +13,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
   <link rel="stylesheet" href="../../styles/reset.css" />
   <link rel="stylesheet" href="../../styles/theme.css" />
   <style>
@@ -374,13 +374,17 @@
           <div class="glass glass--sm action-card action-card--red">
             <div>
               <div style="font-weight: 800; font-size: 1.05rem; color: #FF4D6A; display: flex; align-items: center; gap: 8px;">
-                <span aria-hidden="true">🎮</span> Control Panel
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Operator Control Panel
               </div>
-              <div class="text-xs muted" style="margin-top: 2px;">Operator console for real-time scoring and timer management</div>
+              <div class="text-xs muted" style="margin-top: 2px;">Real-time scoring, point adjustments, and live match clock management</div>
             </div>
             <div class="action-card-btns">
-              <button class="clay clay--ghost clay--sm" id="copy-control" type="button">📋 Copy Link</button>
-              <a id="open-control" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--red clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Control →</a>
+              <button class="clay clay--ghost clay--sm" id="copy-control" type="button">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Link
+              </button>
+              <a id="open-control" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--red clay--sm" style="text-decoration:none; padding: 8px 18px;">Open Console →</a>
             </div>
           </div>
 
@@ -388,20 +392,27 @@
           <div class="glass glass--sm action-card action-card--blue">
             <div>
               <div style="font-weight: 800; font-size: 1.05rem; color: #5B9CF6; display: flex; align-items: center; gap: 8px;">
-                <span aria-hidden="true">📺</span> Scoreboard
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                Venue Scoreboard
               </div>
-              <div class="text-xs muted" style="margin-top: 2px;">Public broadcast view for arena venue TVs and projectors</div>
+              <div class="text-xs muted" style="margin-top: 2px;">Fullscreen spectator and broadcast feed for arena projectors & screens</div>
             </div>
             <div class="action-card-btns">
-              <button class="clay clay--ghost clay--sm" id="copy-scoreboard" type="button">📋 Copy Link</button>
-              <a id="open-scoreboard" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--blue clay--sm" style="text-decoration:none; padding: 8px 16px;">Open Scoreboard →</a>
+              <button class="clay clay--ghost clay--sm" id="copy-scoreboard" type="button">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Link
+              </button>
+              <a id="open-scoreboard" href="#" target="_blank" rel="noopener noreferrer" class="clay clay--blue clay--sm" style="text-decoration:none; padding: 8px 18px;">Open Board →</a>
             </div>
           </div>
 
           <hr class="divider" style="margin: var(--sp-2) 0;" />
 
           <div class="links-actions">
-            <button class="clay clay--amber" id="new-match-btn" type="button">+ New Match</button>
+            <button class="clay clay--amber" id="new-match-btn" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Create New Match
+            </button>
           </div>
         </div>
 

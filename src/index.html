@@ -13,7 +13,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" />
   <link rel="stylesheet" href="./styles/reset.css" />
   <link rel="stylesheet" href="./styles/theme.css" />
   <style>
@@ -22,31 +22,37 @@
       width: 100%;
       max-width: 420px;
       padding: var(--sp-7) var(--sp-6);
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      position: relative;
     }
 
     /* ── Logo Mark ────────────────────────────────────────────────────────────── */
     .logo-mark {
-      width: 56px; height: 56px;
+      width: 60px; height: 60px;
       background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-      border-radius: 14px;
+      border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem;
-      box-shadow: 0 0 30px var(--amber-glow);
-      margin-bottom: var(--sp-5);
+      font-size: 2rem;
+      box-shadow: 0 0 32px var(--amber-glow);
+      margin: 0 auto var(--sp-4) auto;
     }
 
     .login-title {
-      font-size: clamp(1.35rem, 5vw, 1.6rem);
+      font-size: clamp(1.4rem, 5vw, 1.75rem);
       font-weight: 800;
-      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+      text-align: center;
     }
     .login-subtitle {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       margin-bottom: var(--sp-6);
+      text-align: center;
     }
 
-    .login-form { display: flex; flex-direction: column; gap: var(--sp-4); }
+    .login-form { display: flex; flex-direction: column; gap: var(--sp-4); text-align: left; }
 
     /* Password field wrapper with toggle */
     .password-wrapper {
@@ -81,32 +87,38 @@
       text-align: center;
     }
     .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
       text-transform: uppercase; color: var(--text-dim);
-      margin-top: var(--sp-8);
+      margin: var(--sp-6) auto 0 auto;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
     .badge svg { opacity: 0.4; }
 
     /* ── Mobile adjustments ──────────────────────────────────────────────────── */
     @media (max-width: 480px) {
       .login-card {
-        padding: var(--sp-5) var(--sp-4);
+        padding: var(--sp-6) var(--sp-5);
         border-radius: var(--r-md);
+        max-width: 100%;
       }
       .page-center {
-        padding: var(--sp-3);
-        align-items: flex-start;
-        padding-top: max(var(--sp-6), env(safe-area-inset-top, 24px));
+        padding: var(--sp-4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
       }
-      .login-card { max-width: 100%; }
     }
 
     /* ── Laptop / Desktop (> 1024px) ─────────────────────────────────────────── */
     @media (min-width: 1024px) {
       .login-card { max-width: 440px; }
       .page-center {
-        background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245,197,24,0.04) 0%, transparent 70%);
+        background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(245,197,24,0.05) 0%, transparent 70%), var(--bg);
       }
     }
   </style>

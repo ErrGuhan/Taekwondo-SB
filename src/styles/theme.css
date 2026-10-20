@@ -46,7 +46,7 @@
 
   /* Typography */
   --font-body:    'Manrope', system-ui, sans-serif;
-  --font-display: 'Orbitron', monospace;
+  --font-display: 'Chakra Petch', 'Orbitron', monospace;
   --font-mono:    'Share Tech Mono', 'Courier New', monospace;
 
   /* Responsive touch target */
@@ -178,14 +178,13 @@ body {
   font-family: var(--font-display);
   font-size: clamp(3.5rem, 8vw, 7rem);
   line-height: 1;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 1.5ch;
   text-align: center;
-  contain: layout style;
   transform-origin: center center;
   will-change: transform;
 }
@@ -205,25 +204,19 @@ body {
   font-kerning: none;
   line-height: 1;
   user-select: none;
-  contain: layout style;
   white-space: nowrap;
 }
 
 .timer-digit {
   display: inline-block;
-  width: 0.60em;
-  min-width: 0.60em;
-  max-width: 0.60em;
+  min-width: 0.68em;
   text-align: center;
   box-sizing: border-box;
-  contain: layout style paint;
 }
 
 .timer-colon {
   display: inline-block;
-  width: 0.28em;
   min-width: 0.28em;
-  max-width: 0.28em;
   text-align: center;
   box-sizing: border-box;
   position: relative;
@@ -238,18 +231,14 @@ body {
   font-family: var(--font-display);
   line-height: 1;
   user-select: none;
-  contain: layout style;
   white-space: nowrap;
 }
 
 .score-digit {
   display: inline-block;
-  width: 0.62em;
-  min-width: 0.62em;
-  max-width: 0.62em;
+  min-width: 0.68em;
   text-align: center;
   box-sizing: border-box;
-  contain: layout style paint;
 }
 
 /* ── Timer ─────────────────────────────────────────────────────────────────── */

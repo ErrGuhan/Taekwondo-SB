@@ -321,3 +321,66 @@ test('[A11y] Control — error role=alert present', async ({ page }) => {
   const dialog = await page.locator('[role="dialog"]').count();
   expect(dialog).toBeGreaterThanOrEqual(1);
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. ALIGNMENT, CENTERING & DIGIT RENDERING CHECKS
+// ─────────────────────────────────────────────────────────────────────────────
+test('[Login] card is horizontally centered on desktop and mobile', async ({ page }) => {
+  for (const vp of [{ width: 1280, height: 800 }, { width: 375, height: 667 }]) {
+    await page.setViewportSize(vp);
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const cardBox = await page.locator('.login-card').boundingBox();
+    expect(cardBox).not.toBeNull();
+    const cardCenter = cardBox.x + cardBox.width / 2;
+    expect(Math.abs(cardCenter - vp.width / 2)).toBeLessThanOrEqual(6);
+  }
+});
+
+test('[Login] logo-mark is horizontally centered within login card', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const cardBox = await page.locator('.login-card').boundingBox();
+  const logoBox = await page.locator('.logo-mark').boundingBox();
+  expect(cardBox).not.toBeNull();
+  expect(logoBox).not.toBeNull();
+  const cardCenter = cardBox.x + cardBox.width / 2;
+  const logoCenter = logoBox.x + logoBox.width / 2;
+  expect(Math.abs(logoCenter - cardCenter)).toBeLessThanOrEqual(4);
+});
+
+test('[Scoreboard] timer and score digits have proper dimensions and font-family', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/pages/scoreboard/?id=demo', { waitUntil: 'domcontentloaded' });
+
+  const timerBox = await page.locator('#sb-timer').boundingBox();
+  expect(timerBox).not.toBeNull();
+  expect(timerBox.width).toBeGreaterThan(60);
+  expect(timerBox.height).toBeGreaterThan(30);
+
+  const redScoreBox = await page.locator('#sb-red-score').boundingBox();
+  expect(redScoreBox).not.toBeNull();
+  expect(redScoreBox.width).toBeGreaterThan(40);
+  expect(redScoreBox.height).toBeGreaterThan(40);
+
+  const font = await page.locator('#sb-timer').evaluate(el => window.getComputedStyle(el).fontFamily);
+  expect(font).toContain('Chakra Petch');
+});
+
+test('[Control] bottom bar buttons are visible and have consistent heights', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/pages/control/?id=demo', { waitUntil: 'domcontentloaded' });
+
+  const nextBtn = page.locator('#next-round-btn');
+  const resetBtn = page.locator('#reset-btn');
+  const sbLink = page.locator('#scoreboard-link');
+
+  await expect(nextBtn).toBeVisible();
+  await expect(resetBtn).toBeVisible();
+  await expect(sbLink).toBeVisible();
+
+  const nextH = await nextBtn.evaluate(el => el.getBoundingClientRect().height);
+  const resetH = await resetBtn.evaluate(el => el.getBoundingClientRect().height);
+  expect(nextH).toBeGreaterThanOrEqual(40);
+  expect(resetH).toBeGreaterThanOrEqual(40);
+});
+
